@@ -3,25 +3,65 @@ import { AppText } from '@/components/app-text'
 import { AppView } from '@/components/app-view'
 import { useUserDraft } from '@/components/state/user-details-provider'
 import { UiIconSymbol } from '@/components/ui/ui-icon-symbol'
+import { Button } from '@react-navigation/elements'
+import { useRouter } from 'expo-router'
 import React from 'react'
 import { ScrollView, View } from 'react-native'
 
 export default function AccountScreen() {
-  const { user } = useUserDraft()
+  const { user , refreshUser} = useUserDraft()
+  const router = useRouter()
 
   React.useEffect(() => {
-    console.log("[DEBUG] user", {user})
+    if (user) {      
+      console.log('[AccountScreen] No user found, redirecting to onboarding')
+    }
   }, [user])
+
+  React.useEffect(() => {
+    refreshUser()
+  }, [])
 
   if (!user) {
     return (
       <AppView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <AppText>No user profile found.</AppText>
+        <AppText type="title">No User Found</AppText>
+        <AppText>Please complete onboarding or check your connection.</AppText>
       </AppView>
     )
   }
 
   return (
+    <>
+
+    {!user &&
+    <AppView style={{ flex: 1 }}>
+      <View style={{
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 24,
+        gap: 16,
+        flex: 1
+      }}>
+        <AppText type="title">No User Found</AppText>
+        <Button
+          style={{
+            backgroundColor: '#000',
+            padding: 12,
+            borderRadius: 8,
+            width: '100%',
+            alignItems: 'center'
+          }}
+          onPress={() => router.replace('/onboarding/welcome')}
+        >
+          <AppText style={{ color: '#fff', fontWeight: 'bold' }}>Create Profile</AppText>
+        </Button>
+      </View>
+    </AppView>
+    }
+    
+    {user &&
+
     <AppView style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
         {/* Profile Header */}
@@ -65,12 +105,19 @@ export default function AccountScreen() {
           </View>
         </View>
 
-        {/* Debug Info */}
-        <View style={{ padding: 24, paddingTop: 0, opacity: 0.5 }}>
-           <AppText style={{ fontSize: 12 }}>Wallet: {user.walletPublicKey?.slice(0, 8)}...</AppText>
+        {/* Developer Tools */}
+        <View style={{ padding: 24, paddingTop: 0, gap: 16 }}>
+            <AppText type="subtitle" style={{ fontSize: 18 }}>Developer Tools</AppText>
+            <View style={{ backgroundColor: '#f5f5f5', padding: 12, borderRadius: 8 }}>
+                <AppText style={{ fontFamily: 'monospace', fontSize: 10 }}>
+                    {JSON.stringify(user, null, 2)}
+                </AppText>
+            </View>
         </View>
       </ScrollView>
     </AppView>
+        }
+    </>
   )
 }
 

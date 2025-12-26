@@ -19,7 +19,7 @@ export default function ProfileScreen() {
   const [orientation, setOrientation] = useState(draft.orientation || 'Straight') 
 
   const handleContinue = () => {
-    if (!name || !age || !bio) {
+    if (!name || !age || !bio || !gender || !orientation) {
         // Validation could be better
         return
     }
@@ -78,10 +78,19 @@ export default function ProfileScreen() {
           </View>
           
           <View style={{ gap: 8 }}>
-             <AppText>Gender: {gender}</AppText>
+             <AppText>Gender: </AppText>
+             <TextInput 
+             value={gender} onChangeText={setGender}
+             placeholder="Non Binary"
+             style={{backgroundColor: 'white', padding: 12, borderRadius: 8}}
+             />
           </View>
-           <View style={{ gap: 8 }}>
-             <AppText>Orientation: {orientation}</AppText>
+
+          <View style={{ gap: 8 }}>
+             <AppText>Orientation: </AppText>
+             <TextInput value={orientation} onChangeText={setOrientation}
+             placeholder="Straight"
+             style={{backgroundColor: 'white', padding: 12, borderRadius: 8}}/>
           </View>
 
           <Button variant="filled" onPress={handleContinue}>

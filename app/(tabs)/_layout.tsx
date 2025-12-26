@@ -1,8 +1,9 @@
+import { UiIconSymbol } from '@/components/ui/ui-icon-symbol'
 import { Tabs } from 'expo-router'
 import React from 'react'
-import { UiIconSymbol } from '@/components/ui/ui-icon-symbol'
 
 export default function TabLayout() {
+  // check for the user is present or not 
   return (
     <Tabs screenOptions={{ headerShown: false }}>
       {/* The index redirects to the account screen */}
@@ -12,6 +13,13 @@ export default function TabLayout() {
         options={{
           title: 'Account',
           tabBarIcon: ({ color }) => <UiIconSymbol size={28} name="wallet.pass.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="scroll"
+        options={{
+          title: 'Scroll',
+          tabBarIcon: ({ color }) => <UiIconSymbol size={28} name="ladybug.fill" color={color} />,
         }}
       />
       <Tabs.Screen

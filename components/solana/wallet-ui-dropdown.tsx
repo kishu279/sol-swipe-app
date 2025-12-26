@@ -32,7 +32,7 @@ function useDropdownItems() {
       label: 'Disconnect',
       onPress: async () => {
         await disconnect()
-        reset()
+        // reset()
       },
     },
   ]
