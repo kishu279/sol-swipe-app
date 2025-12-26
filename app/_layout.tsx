@@ -1,15 +1,15 @@
+import { AppProviders } from '@/components/app-providers'
+import { AppSplashController } from '@/components/app-splash-controller'
+import { useAuth } from '@/components/auth/auth-provider'
+import { useTrackLocations } from '@/hooks/use-track-locations'
 import { PortalHost } from '@rn-primitives/portal'
 import { useFonts } from 'expo-font'
 import { Stack } from 'expo-router'
-import { StatusBar } from 'expo-status-bar'
-import 'react-native-reanimated'
-import { AppProviders } from '@/components/app-providers'
-import { useCallback } from 'react'
 import * as SplashScreen from 'expo-splash-screen'
+import { StatusBar } from 'expo-status-bar'
+import { useCallback } from 'react'
 import { View } from 'react-native'
-import { useTrackLocations } from '@/hooks/use-track-locations'
-import { AppSplashController } from '@/components/app-splash-controller'
-import { useAuth } from '@/components/auth/auth-provider'
+import 'react-native-reanimated'
 
 SplashScreen.preventAutoHideAsync()
 
@@ -60,6 +60,7 @@ function RootNavigator() {
       <Stack.Protected guard={isAuthenticated}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="+not-found" />
+        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       </Stack.Protected>
       <Stack.Protected guard={!isAuthenticated}>
         <Stack.Screen name="sign-in" />

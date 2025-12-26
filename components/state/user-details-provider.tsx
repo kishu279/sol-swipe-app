@@ -1,0 +1,114 @@
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useRouter } from 'expo-router'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { Alert } from 'react-native'
+
+// TYPE OF DATA TO BE COLLECTED FOR USER PROFILE
+export type UserDraft = {
+  walletPublicKey?: string
+  displayName?: string
+  bio?: string
+  age?: number
+  gender?: string
+  orientation?: string
+  ageMin?: number
+  ageMax?: number
+  maxDistanceKm?: number
+  preferredGenders?: string[]
+}
+
+// ... imports
+
+// CONTEXT TYPE
+export interface UserDraftContextType {
+  draft: UserDraft
+  user: UserDraft | null
+  updateDraft: (data: Partial<UserDraft>) => void
+  submit: () => Promise<boolean>
+  reset: () => void
+  refreshUser: () => Promise<void>
+}
+
+// CREATE CONTEXT
+export const UserDraftContext = createContext<UserDraftContextType | undefined>(undefined)
+
+export function useUserDraft() {
+  const context = useContext(UserDraftContext)
+  if (!context) {
+    throw new Error('useUserDraft must be used within a UserDraftProvider')
+  }
+  return context
+}
+
+export const USER_PROFILE_STORAGE_KEY = 'user_profile_data'
+
+// PROVIDER COMPONENT
+export function UserDraftProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
+  const [draft, setDraft] = useState<UserDraft>({})
+  const [user, setUser] = useState<UserDraft | null>(null)
+
+  useEffect(() => {
+    refreshUser()
+  }, [])
+
+  const refreshUser = async () => {
+    try {
+      const stored = await AsyncStorage.getItem(USER_PROFILE_STORAGE_KEY)
+      if (stored) {
+        setUser(JSON.parse(stored))
+      }
+    } catch (e) {
+      console.error('Failed to load user profile', e)
+    }
+  }
+
+  const updateDraft = (data: Partial<UserDraft>) => {
+    setDraft((prev) => ({ ...prev, ...data }))
+  }
+
+  const submit = async (): Promise<boolean> => {
+    if (!draft.walletPublicKey) {
+      console.error('Missing wallet public key')
+      return false
+    }
+
+    try {
+      // Save entire draft to AsyncStorage
+      await AsyncStorage.setItem(USER_PROFILE_STORAGE_KEY, JSON.stringify(draft))
+      
+      await refreshUser() // Update local state
+      
+      // Success
+      setDraft({}) // Just clear draft, don't wipe everything on success!
+      return true
+    } catch (error) {
+      console.error('Onboarding submission failed:', error)
+      Alert.alert('Error', 'Failed to save account locally.')
+      return false
+    }
+  }
+
+  const reset = async () => {
+    console.log('[UserDraftProvider] reset called')
+    setDraft({})
+    setUser(null)
+    try {
+      console.log('[UserDraftProvider] Removing item from AsyncStorage...')
+      await AsyncStorage.removeItem(USER_PROFILE_STORAGE_KEY)
+      console.log('[UserDraftProvider] Item removed.')
+      
+      // Double check
+      const check = await AsyncStorage.getItem(USER_PROFILE_STORAGE_KEY)
+      console.log('[UserDraftProvider] Post-reset check:', check)
+    } catch (e) {
+      console.error('Failed to clear user storage', e)
+    }
+  }
+
+  return (
+    <UserDraftContext.Provider value={{ draft, user, updateDraft, submit, reset, refreshUser }}>
+      {children}
+    </UserDraftContext.Provider>
+  )
+}

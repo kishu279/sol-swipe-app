@@ -1,18 +1,21 @@
+import { AppText } from '@/components/app-text'
+import { useCluster } from '@/components/cluster/cluster-provider'
+import { useWalletUi } from '@/components/solana/use-wallet-ui'
+import { useWalletUiTheme } from '@/components/solana/use-wallet-ui-theme'
+import { UiIconSymbol } from '@/components/ui/ui-icon-symbol'
+import { ellipsify } from '@/utils/ellipsify'
+import Clipboard from '@react-native-clipboard/clipboard'
+import * as Dropdown from '@rn-primitives/dropdown-menu'
 import React, { Fragment } from 'react'
 import { Linking, StyleSheet } from 'react-native'
-import Clipboard from '@react-native-clipboard/clipboard'
-import { useWalletUi } from '@/components/solana/use-wallet-ui'
-import { ellipsify } from '@/utils/ellipsify'
-import { UiIconSymbol } from '@/components/ui/ui-icon-symbol'
-import { useCluster } from '@/components/cluster/cluster-provider'
-import { AppText } from '@/components/app-text'
-import * as Dropdown from '@rn-primitives/dropdown-menu'
+import { useUserDraft } from '../state/user-details-provider'
 import { WalletUiButtonConnect } from './wallet-ui-button-connect'
-import { useWalletUiTheme } from '@/components/solana/use-wallet-ui-theme'
 
 function useDropdownItems() {
   const { getExplorerUrl } = useCluster()
   const { account, disconnect } = useWalletUi()
+  const { reset } = useUserDraft()
+
   if (!account) {
     return []
   }
@@ -27,7 +30,10 @@ function useDropdownItems() {
     },
     {
       label: 'Disconnect',
-      onPress: async () => await disconnect(),
+      onPress: async () => {
+        await disconnect()
+        reset()
+      },
     },
   ]
 }
