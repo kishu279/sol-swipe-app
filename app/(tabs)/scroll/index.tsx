@@ -1,8 +1,8 @@
 import { MOCK_DATA, ScrollDataType } from '@/constants/scroll-data'
 import { useThemeColor } from '@/hooks/use-theme-color'
 import { LinearGradient } from 'expo-linear-gradient'
-import React from 'react'
-import { Dimensions, Image, ScrollView, StyleSheet, Text, View } from 'react-native'
+import React, { useCallback } from 'react'
+import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
@@ -12,13 +12,39 @@ export default function ScrollScreen() {
   const textColor = useThemeColor({}, 'text')
   const borderColor = useThemeColor({}, 'border')
 
+  // const [loading, setLoading] = React.useState(false)
+  const [selectedProfile, setSelectedProfile] = React.useState<ScrollDataType | null>(null)
+
+  const nextProfile = useCallback(() => {
+    // Logic to fetch or select the next profile
+    try {
+      // api fetched
+
+      const next = MOCK_DATA[Math.floor(Math.random() * MOCK_DATA.length)]
+      setSelectedProfile(next)
+    } catch (error) {
+      console.log(error)
+    }
+  }, [])
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {MOCK_DATA.map((profile) => (
+        {/* {MOCK_DATA.map((profile) => (
           <ProfileCard key={profile.id} profile={profile} textColor={textColor} borderColor={borderColor} />
-        ))}
+        ))} */}
+
+        {selectedProfile ? (
+          <ProfileCard profile={selectedProfile} textColor={textColor} borderColor={borderColor} />
+        ) : (
+          <View style={{ alignItems: 'center', marginTop: 50 }}>
+            <Text style={{ color: textColor, fontSize: 18, marginBottom: 20 }}>No profile selected</Text>
+          </View>
+        )}
       </ScrollView>
+      <TouchableOpacity onPress={nextProfile} style={styles.nextButton}>
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>Next</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   )
 }
@@ -136,6 +162,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 16,
     paddingBottom: 32,
+    position: 'relative',
   },
   card: {
     marginBottom: 24,
@@ -231,5 +258,21 @@ const styles = StyleSheet.create({
     width: 120,
     height: 160,
     borderRadius: 12,
+  },
+  nextButton: {
+    position: 'absolute',
+    bottom: 50,
+
+    right: 20,
+    backgroundColor: '#dcb6de',
+    height: 50,
+    width: 100,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    animationDelay: 500,
+
+    shadowColor: '#fff',
+    shadowOffset: { width: 0, height: 2 },
   },
 })

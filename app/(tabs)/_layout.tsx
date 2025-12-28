@@ -3,7 +3,7 @@ import { Tabs } from 'expo-router'
 import React from 'react'
 
 export default function TabLayout() {
-  // check for the user is present or not 
+  // check for the user is present or not
   return (
     <Tabs screenOptions={{ headerShown: false }}>
       {/* The index redirects to the account screen */}
@@ -19,7 +19,7 @@ export default function TabLayout() {
         name="scroll"
         options={{
           title: 'Scroll',
-          tabBarIcon: ({ color }) => <UiIconSymbol size={28} name="ladybug.fill" color={color} />,
+          tabBarIcon: ({ color }) => <UiIconSymbol size={28} name="scroll.fill" color={color} />,
         }}
       />
       <Tabs.Screen
@@ -29,6 +29,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <UiIconSymbol size={28} name="gearshape.fill" color={color} />,
         }}
       />
+
       <Tabs.Screen
         name="demo"
         options={{
