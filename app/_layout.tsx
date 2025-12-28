@@ -8,7 +8,7 @@ import { Stack } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { useCallback } from 'react'
-import { View } from 'react-native'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import 'react-native-reanimated'
 
 SplashScreen.preventAutoHideAsync()
@@ -42,20 +42,20 @@ export default function RootLayout() {
   }
 
   return (
-    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+    <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <AppProviders>
         <AppSplashController />
         <RootNavigator />
         <StatusBar style="auto" />
       </AppProviders>
       <PortalHost />
-    </View>
+    </GestureHandlerRootView>
   )
 }
 
 function RootNavigator() {
   const { isAuthenticated } = useAuth()
-  
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={isAuthenticated}>
