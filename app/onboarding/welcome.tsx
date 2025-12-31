@@ -20,7 +20,7 @@ export default function WelcomeScreen() {
 
   const handleContinue = () => {
     if (!publicKey) return
-    router.push('/onboarding/profile')
+    router.push({ pathname: '/onboarding/profile', params: { publicKey } })
   }
 
   return (
@@ -28,9 +28,12 @@ export default function WelcomeScreen() {
       <SafeAreaView style={{ flex: 1, padding: 24, justifyContent: 'space-between' }}>
         <View style={{ gap: 16 }}>
           <AppText type="title">Welcome!</AppText>
-          <AppText>Let's get you set up. We'll start by creating your profile. We will create your account at the end of the process.</AppText>
+          <AppText>
+            Let's get you set up. We'll start by creating your profile. We will create your account at the end of the
+            process.
+          </AppText>
         </View>
-        
+
         <Button variant="filled" onPress={handleContinue}>
           Get Started
         </Button>

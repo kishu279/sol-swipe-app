@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter } from 'expo-router'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { Alert } from 'react-native'
+import { AppConfig } from '@/constants/app-config'
 
 // TYPE OF DATA TO BE COLLECTED FOR USER PROFILE
 export type UserDraft = {
@@ -15,6 +16,7 @@ export type UserDraft = {
   ageMax?: number
   maxDistanceKm?: number
   preferredGenders?: string[]
+  promptAnswers?: { questionId: string; answer: string }[]
 }
 
 // ... imports
@@ -24,7 +26,6 @@ export interface UserDraftContextType {
   draft: UserDraft
   user: UserDraft | null
   updateDraft: (data: Partial<UserDraft>) => void
-  submit: () => Promise<boolean>
   reset: () => void
   refreshUser: () => Promise<void>
 }
@@ -32,6 +33,7 @@ export interface UserDraftContextType {
 // CREATE CONTEXT
 export const UserDraftContext = createContext<UserDraftContextType | undefined>(undefined)
 
+// hook
 export function useUserDraft() {
   const context = useContext(UserDraftContext)
   if (!context) {
@@ -67,28 +69,6 @@ export function UserDraftProvider({ children }: { children: React.ReactNode }) {
     setDraft((prev) => ({ ...prev, ...data }))
   }
 
-  const submit = async (): Promise<boolean> => {
-    if (!draft.walletPublicKey) {
-      console.error('Missing wallet public key')
-      return false
-    }
-
-    try {
-      // Save entire draft to AsyncStorage
-      await AsyncStorage.setItem(USER_PROFILE_STORAGE_KEY, JSON.stringify(draft))
-      
-      await refreshUser() // Update local state
-      
-      // Success
-      setDraft({}) // Just clear draft, don't wipe everything on success!
-      return true
-    } catch (error) {
-      console.error('Onboarding submission failed:', error)
-      Alert.alert('Error', 'Failed to save account locally.')
-      return false
-    }
-  }
-
   const reset = async () => {
     console.log('[UserDraftProvider] reset called')
     setDraft({})
@@ -97,7 +77,7 @@ export function UserDraftProvider({ children }: { children: React.ReactNode }) {
       console.log('[UserDraftProvider] Removing item from AsyncStorage...')
       await AsyncStorage.removeItem(USER_PROFILE_STORAGE_KEY)
       console.log('[UserDraftProvider] Item removed.')
-      
+
       // Double check
       const check = await AsyncStorage.getItem(USER_PROFILE_STORAGE_KEY)
       console.log('[UserDraftProvider] Post-reset check:', check)
@@ -107,7 +87,7 @@ export function UserDraftProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <UserDraftContext.Provider value={{ draft, user, updateDraft, submit, reset, refreshUser }}>
+    <UserDraftContext.Provider value={{ draft, user, updateDraft, reset, refreshUser }}>
       {children}
     </UserDraftContext.Provider>
   )

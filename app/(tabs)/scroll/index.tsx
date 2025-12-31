@@ -59,6 +59,7 @@ function ProfileCard({ profile, textColor, borderColor }: ProfileCardProps) {
   const cardBackground = useThemeColor({}, 'background')
   const nameColor = useThemeColor({}, 'tint')
   const locationColor = useThemeColor({}, 'text')
+
   return (
     <View style={[styles.card, { borderColor, backgroundColor: cardBackground }]}>
       {/* Main Profile Image */}

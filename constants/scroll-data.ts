@@ -39,7 +39,7 @@ export const MOCK_DATA: ScrollDataType[] = [
       ageMax: 35,
       maxDistanceKm: 100,
     },
-    profileImage: 'https://resiliencechallenge.nz/wp-content/uploads/fallback-person.svg',
+    profileImage: 'https://cdn.britannica.com/54/264854-050-1F82F2BF/indian-actor-hrithik-roshan-european-premiere-kites-odeon-west-may-18-2010-london-england.jpg?w=300',
     images: [
       'https://fastly.picsum.photos/id/541/200/300.jpg?hmac=nhG-hlD63wW6srZpMlMH73GwqdwqiMD5VDrLV7TQJ08',
       'https://fastly.picsum.photos/id/951/200/200.jpg?hmac=FVINiB5mMdXIUDDk4AYptO4s4A2ETDNX4n3RSDaoB4E',
