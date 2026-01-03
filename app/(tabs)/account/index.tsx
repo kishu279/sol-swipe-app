@@ -88,6 +88,7 @@ export default function AccountScreen() {
                 }}
               >
                 <UiIconSymbol name="person.fill" size={60} color={iconPlaceholder} />
+
               </View>
               <View style={{ alignItems: 'center', gap: 4 }}>
                 <AppText type="title" style={{ fontSize: 28 }}>

@@ -291,4 +291,31 @@ export const MOCK_DATA: ScrollDataType[] = [
     ],
     // ...existing code...
   },
+  {
+    id: '11',
+    displayName: 'Sneha Srivastava',
+    age: 25,
+    gender: 'FEMALE',
+    orientation: 'Heterosexual',
+    bio: 'Chef with a playful spirit. I love making people smile and enjoy good company.',
+    profession: 'Chef',
+    hobbies: ['Pagal banana', 'Bewakofim'],
+    religion: 'Pakistani',
+    location: 'Mumbai, India',
+    heightCm: 40,
+    preferences: {
+      preferredGenders: ['MALE'],
+      ageMin: 40,
+      ageMax: 60,
+      maxDistanceKm: 500,
+    },
+    profileImage: 'https://drive.google.com/drive/u/0/folders/1PhFbRNWKfISFuPSEQ0G-JjoU3iF5xL0X',
+    images: [
+      'https://fastly.picsum.photos/id/541/200/300.jpg?hmac=nhG-hlD63wW6srZpMlMH73GwqdwqiMD5VDrLV7TQJ08',
+      'https://fastly.picsum.photos/id/951/200/200.jpg?hmac=FVINiB5mMdXIUDDk4AYptO4s4A2ETDNX4n3RSDaoB4E',
+      'https://fastly.picsum.photos/id/541/200/300.jpg?hmac=nhG-hlD63wW6srZpMlMH73GwqdwqiMD5VDrLV7TQJ08',
+      'https://fastly.picsum.photos/id/951/200/200.jpg?hmac=FVINiB5mMdXIUDDk4AYptO4s4A2ETDNX4n3RSDaoB4E',
+    ],
+    // ...existing code...
+  },
 ]

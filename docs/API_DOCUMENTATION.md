@@ -1,22 +1,36 @@
 # API Documentation
 
-Base URL: `http://localhost:3000/api`
+**Base URL:** `http://localhost:3000/api`
 
 ---
 
-## 1. Create User
-**POST** `/user`
+## Health Check
 
-**Body:**
+### `GET /api/health`
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Server and database are healthy"
+}
+```
+
+---
+
+## User Management
+
+### `POST /api/user`
+Create a new user
+
+**Request Body:**
 ```json
 {
   "walletPublicKey": "string"
 }
 ```
 
-**Responses:**
-
-201:
+**Response (201):**
 ```json
 {
   "success": true,
@@ -27,42 +41,88 @@ Base URL: `http://localhost:3000/api`
 }
 ```
 
-200:
-```json
-{
-  "userId": "string",
-  "message": "User already exists"
-}
-```
-
-500:
+**Error (400):**
 ```json
 {
   "success": false,
-  "error": "Failed to create user"
+  "error": "User already exists"
 }
 ```
 
 ---
 
-## 2. Create Profile
-**POST** `/user/profile`
+### `GET /api/user/:publicKey`
+Get user details with profile and preferences
 
-**Body:**
+**URL Params:** `publicKey` - Wallet public key
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "string",
+    "walletPubKey": "string",
+    "isActive": true,
+    "createdAt": "ISO8601",
+    "updatedAt": "ISO8601",
+    "profile": {
+      "id": "string",
+      "displayName": "string",
+      "age": 25,
+      "bio": "string",
+      "gender": "MALE|FEMALE|NON_BINARY",
+      "orientation": "MEN|WOMEN|EVERYONE",
+      "heightCm": 175,
+      "hobbies": ["string"],
+      "location": "string",
+      "profession": "string",
+      "religion": "string"
+    },
+    "preferences": {
+      "id": "string",
+      "preferredGenders": ["MALE|FEMALE|NON_BINARY"],
+      "ageMin": 21,
+      "ageMax": 30,
+      "maxDistanceKm": 50
+    }
+  }
+}
+```
+
+**Error (404):**
+```json
+{
+  "success": false,
+  "error": "User not found"
+}
+```
+
+---
+
+## Profile Management
+
+### `POST /api/user/profile`
+Create user profile
+
+**Request Body:**
 ```json
 {
   "publicKey": "string",
   "name": "string",
-  "age": number,
+  "age": "number",
   "bio": "string",
-  "gender": "MALE | FEMALE | NON_BINARY | OTHER",
-  "orientation": "string"
+  "gender": "MALE|FEMALE|NON_BINARY",
+  "orientation": "MEN|WOMEN|EVERYONE",
+  "heightCm": "number",
+  "hobbies": ["string"],
+  "location": "string",
+  "profession": "string",
+  "religion": "string"
 }
 ```
 
-**Responses:**
-
-201:
+**Response (201):**
 ```json
 {
   "success": true,
@@ -73,15 +133,15 @@ Base URL: `http://localhost:3000/api`
 }
 ```
 
-400:
+**Error (400):**
 ```json
 {
   "success": false,
-  "error": "publicKey is required"
+  "error": "Profile already exists"
 }
 ```
 
-404:
+**Error (404):**
 ```json
 {
   "success": false,
@@ -89,34 +149,14 @@ Base URL: `http://localhost:3000/api`
 }
 ```
 
-500:
-```json
-{
-  "success": false,
-  "error": "Failed to create profile"
-}
-```
-
 ---
 
-## 3. Update Profile
-**PUT** `/user/profile`
+### `PUT /api/user/profile`
+Update user profile
 
-**Body:**
-```json
-{
-  "publicKey": "string",
-  "name": "string",
-  "age": number,
-  "bio": "string",
-  "gender": "MALE | FEMALE | NON_BINARY | OTHER",
-  "orientation": "string"
-}
-```
+**Request Body:** Same as POST `/api/user/profile`
 
-**Responses:**
-
-200:
+**Response (200):**
 ```json
 {
   "success": true,
@@ -127,7 +167,7 @@ Base URL: `http://localhost:3000/api`
 }
 ```
 
-404:
+**Error (404):**
 ```json
 {
   "success": false,
@@ -135,88 +175,26 @@ Base URL: `http://localhost:3000/api`
 }
 ```
 
-500:
-```json
-{
-  "success": false,
-  "error": "Failed to update profile"
-}
-```
-
 ---
 
-## 4. Get User
-**GET** `/user/:publicKey`
+## Preferences
 
-**Params:** `publicKey`
+### `POST /api/user/:publicKey/preferences`
+Set user matching preferences
 
-**Responses:**
+**URL Params:** `publicKey` - Wallet public key
 
-200:
+**Request Body:**
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "string",
-    "walletPubKey": "string",
-    "isActive": boolean,
-    "createdAt": "string",
-    "updatedAt": "string",
-    "profile": {
-      "id": "string",
-      "displayName": "string",
-      "age": number,
-      "gender": "string",
-      "orientation": "string",
-      "bio": "string"
-    },
-    "preferences": {
-      "id": "string",
-      "preferredGenders": ["string"],
-      "ageMin": number,
-      "ageMax": number,
-      "maxDistanceKm": number
-    }
-  }
+  "preferredGenders": ["MALE|FEMALE|NON_BINARY"],
+  "ageMin": "number",
+  "ageMax": "number",
+  "distanceRange": "number"
 }
 ```
 
-404:
-```json
-{
-  "success": false,
-  "error": "User not found"
-}
-```
-
-500:
-```json
-{
-  "success": false,
-  "error": "Failed to fetch user"
-}
-```
-
----
-
-## 5. Set Preferences
-**POST** `/user/:publicKey/preferences`
-
-**Params:** `publicKey`
-
-**Body:**
-```json
-{
-  "preferredGenders": ["MALE | FEMALE | NON_BINARY | OTHER"],
-  "ageMin": number,
-  "ageMax": number,
-  "distanceRange": number
-}
-```
-
-**Responses:**
-
-200:
+**Response (200):**
 ```json
 {
   "success": true,
@@ -227,7 +205,15 @@ Base URL: `http://localhost:3000/api`
 }
 ```
 
-404:
+**Error (400):**
+```json
+{
+  "success": false,
+  "error": "Preferences already exist"
+}
+```
+
+**Error (404):**
 ```json
 {
   "success": false,
@@ -235,104 +221,69 @@ Base URL: `http://localhost:3000/api`
 }
 ```
 
-500:
-```json
-{
-  "success": false,
-  "error": "Failed to set user preferences"
-}
-```
-
 ---
 
-## 6. Get Preferences
-**GET** `/user/:publicKey/preferences`
+### `GET /api/user/:publicKey/preferences`
+Get user preferences
 
-**Params:** `publicKey`
+**URL Params:** `publicKey` - Wallet public key
 
-**Responses:**
-
-200:
+**Response (200):**
 ```json
 {
   "success": true,
   "data": {
     "id": "string",
     "userId": "string",
-    "preferredGenders": ["string"],
-    "ageMin": number,
-    "ageMax": number,
-    "maxDistanceKm": number
+    "preferredGenders": ["MALE|FEMALE|NON_BINARY"],
+    "ageMin": "number",
+    "ageMax": "number",
+    "maxDistanceKm": "number",
+    "createdAt": "ISO8601",
+    "updatedAt": "ISO8601"
   }
 }
 ```
 
-404:
+**Error (404):**
 ```json
 {
   "success": false,
-  "error": "User not found"
-}
-```
-
-404:
-```json
-{
-  "success": false,
-  "error": "User preferences not found"
-}
-```
-
-500:
-```json
-{
-  "success": false,
-  "error": "Failed to fetch user preferences"
+  "error": "User not found or preferences not found"
 }
 ```
 
 ---
 
-## 7. Get Prompts
-**GET** `/user/:publicKey/prompts`
+## Prompts
 
-**Params:** `publicKey`
+### `GET /api/user/:publicKey/prompts`
+Get all available prompts
 
-**Responses:**
+**URL Params:** `publicKey` - Wallet public key
 
-200:
+**Response (200):**
 ```json
 {
   "success": true,
   "data": [
     {
       "id": "string",
-      "question": "string",
-      "category": "FUN | LIFESTYLE | VALUES | ICEBREAKER",
-      "isActive": boolean,
-      "order": number,
-      "createdAt": "string"
+      "text": "string",
+      "createdAt": "ISO8601"
     }
   ]
 }
 ```
 
-500:
-```json
-{
-  "success": false,
-  "error": "Failed to fetch prompts"
-}
-```
-
 ---
 
-## 8. Submit Prompt Answers
-**POST** `/user/:publicKey/prompts`
+### `POST /api/user/:publicKey/prompts`
+Submit prompt answers
 
-**Params:** `publicKey`
+**URL Params:** `publicKey` - Wallet public key
 
-**Body:**
+**Request Body:**
 ```json
 {
   "answers": [
@@ -344,9 +295,7 @@ Base URL: `http://localhost:3000/api`
 }
 ```
 
-**Responses:**
-
-200:
+**Response (200):**
 ```json
 {
   "success": true,
@@ -354,39 +303,15 @@ Base URL: `http://localhost:3000/api`
 }
 ```
 
-400:
+**Error (400):**
 ```json
 {
   "success": false,
-  "error": "Missing or invalid public key"
+  "error": "Invalid publicKey or answers format"
 }
 ```
 
-400:
-```json
-{
-  "success": false,
-  "error": "Answers must be a non-empty array"
-}
-```
-
-400:
-```json
-{
-  "success": false,
-  "error": "Invalid promptId in answers"
-}
-```
-
-400:
-```json
-{
-  "success": false,
-  "error": "Invalid answer in answers"
-}
-```
-
-404:
+**Error (404):**
 ```json
 {
   "success": false,
@@ -394,24 +319,16 @@ Base URL: `http://localhost:3000/api`
 }
 ```
 
-500:
-```json
-{
-  "success": false,
-  "error": "Failed to ans prompts"
-}
-```
-
 ---
 
-## 9. Get Next Suggestion
-**GET** `/user/:publicKey/next-suggestion`
+## Next Suggestion (Paid)
 
-**Params:** `publicKey`
+### `GET /api/user/:publicKey/next-suggestion`
+Get next matching user - requires Solana payment verification
 
-**Responses:**
+**URL Params:** `publicKey` - Wallet public key
 
-200:
+**Response (200):**
 ```json
 {
   "success": true,
@@ -419,12 +336,31 @@ Base URL: `http://localhost:3000/api`
     "id": "string",
     "walletPubKey": "string",
     "preferences": {
-      "preferredGenders": ["string"],
-      "ageMin": number,
-      "ageMax": number,
-      "maxDistanceKm": number
+      "preferredGenders": ["MALE|FEMALE|NON_BINARY"],
+      "ageMin": "number",
+      "ageMax": "number",
+      "maxDistanceKm": "number"
     }
   },
   "message": "Next suggestion fetched successfully"
 }
 ```
+
+**Error (402):**
+```json
+{
+  "error": "Payment required to access this resource.",
+  "message": "Payment verification failed."
+}
+```
+
+---
+
+## Status Codes
+
+- `200` - Success
+- `201` - Created
+- `400` - Bad Request
+- `402` - Payment Required
+- `404` - Not Found
+- `500` - Server Error

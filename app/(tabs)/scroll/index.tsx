@@ -1,8 +1,11 @@
 import { MOCK_DATA, ScrollDataType } from '@/constants/scroll-data'
+import { useSigningKey } from '@/hooks/use-signing-key'
 import { useThemeColor } from '@/hooks/use-theme-color'
+import { makeSwipeForNextSuggestion, PaymentFailedError, SigningKeyNotConfiguredError } from '@/lib/payment'
 import { LinearGradient } from 'expo-linear-gradient'
+import { router } from 'expo-router'
 import React, { useCallback } from 'react'
-import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
@@ -11,21 +14,73 @@ export default function ScrollScreen() {
   const backgroundColor = useThemeColor({}, 'background')
   const textColor = useThemeColor({}, 'text')
   const borderColor = useThemeColor({}, 'border')
+  const tintColor = useThemeColor({}, 'tint')
 
-  // const [loading, setLoading] = React.useState(false)
+  const { hasKey } = useSigningKey()
+  const [loading, setLoading] = React.useState(false)
   const [selectedProfile, setSelectedProfile] = React.useState<ScrollDataType | null>(null)
 
-  const nextProfile = useCallback(() => {
-    // Logic to fetch or select the next profile
-    try {
-      // api fetched
+  const nextProfile = useCallback(async () => {
+    // Check if signing key is configured
+    if (!hasKey) {
+      Alert.alert(
+        'Signing Key Required',
+        'Please configure your signing key in Settings to enable swipe payments.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Go to Settings', onPress: () => router.push('/(tabs)/settings') },
+        ]
+      )
+      return
+    }
 
+    setLoading(true)
+    try {
+      // TODO: Replace with actual user's public key from auth
+      const userPublicKey = 'YOUR_USER_PUBLIC_KEY'
+      
+      // Make payment and fetch next profile
+      const response = await makeSwipeForNextSuggestion(userPublicKey)
+
+      // console.log("[DEBUG]: calling the next function")
+      
+      if (response.success && response.data) {
+        // Use the data from API
+        setSelectedProfile(response.data)
+        console.log('GOT THE DATA', response.data)
+      } else {
+        // Fallback to mock data for now
+        // const next = MOCK_DATA[Math.floor(Math.random() * MOCK_DATA.length)]
+        // setSelectedProfile(next)
+        console.log("[DEBUG] error while fetching the data from the backend")
+      }
+    } catch (error) {
+      if (error instanceof SigningKeyNotConfiguredError) {
+        Alert.alert(
+          'Signing Key Required',
+          'Please configure your signing key in Settings.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Go to Settings', onPress: () => router.push('/(tabs)/settings') },
+          ]
+        )
+      } else if (error instanceof PaymentFailedError) {
+        Alert.alert(
+          'Payment Failed',
+          `Unable to process payment: ${error.message}. Please check your balance and try again.`
+        )
+      } else {
+        console.error('Error fetching next profile:', error)
+        Alert.alert('Error', 'Failed to fetch next profile. Please try again.')
+      }
+      
+      // Fallback to mock data on error
       const next = MOCK_DATA[Math.floor(Math.random() * MOCK_DATA.length)]
       setSelectedProfile(next)
-    } catch (error) {
-      console.log(error)
+    } finally {
+      setLoading(false)
     }
-  }, [])
+  }, [hasKey])
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]} edges={['top']}>
@@ -42,8 +97,16 @@ export default function ScrollScreen() {
           </View>
         )}
       </ScrollView>
-      <TouchableOpacity onPress={nextProfile} style={styles.nextButton}>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>Next</Text>
+      <TouchableOpacity 
+        onPress={nextProfile} 
+        style={[styles.nextButton, { backgroundColor: loading ? '#aaa' : tintColor }]}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color="white" size="small" />
+        ) : (
+          <Text style={{ color: 'white', fontWeight: 'bold' }}>Next</Text>
+        )}
       </TouchableOpacity>
     </SafeAreaView>
   )

@@ -1,4 +1,5 @@
 import { AppConfig } from '@/constants/app-config'
+import { makeSwipeForNextSuggestion } from './payment'
 
 export interface User {
   id: string
@@ -195,12 +196,15 @@ export const api = {
 
   getSuggestions: async (publicKey: string): Promise<User | null> => {
     try {
-      const response = await fetch(`${AppConfig.apiUrl}/user/${publicKey}/next-suggestion`)
-      const data = await response.json()
-      if (data.success) {
-        return data.data
+
+      // payment api call 
+      const data = await makeSwipeForNextSuggestion(publicKey);
+
+      if (!data.success) {
+        throw new Error(data.message);
       }
-      return null
+
+      return data.data;
     } catch (error) {
       console.error('Error fetching suggestions:', error)
       return null

@@ -1,7 +1,8 @@
-import { SettingsUiCluster } from '@/components/settings/settings-ui-cluster'
 import { AppText } from '@/components/app-text'
 import { SettingsAppConfig } from '@/components/settings/settings-app-config'
+import { SettingsSigningKey } from '@/components/settings/settings-signing-key'
 import { SettingsUiAccount } from '@/components/settings/settings-ui-account'
+import { SettingsUiCluster } from '@/components/settings/settings-ui-cluster'
 
 import { AppPage } from '@/components/app-page'
 
@@ -9,6 +10,7 @@ export default function TabSettingsScreen() {
   return (
     <AppPage>
       <SettingsUiAccount />
+      <SettingsSigningKey />
       <SettingsAppConfig />
       <SettingsUiCluster />
       <AppText type="default" style={{ opacity: 0.5, fontSize: 14 }}>
