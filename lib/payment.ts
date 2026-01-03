@@ -62,9 +62,11 @@ export async function makeSwipeForNextSuggestion(publicKey: string) {
         const { fetchWithPayment } = await initializePaymentClient();
 
         const response = await fetchWithPayment(
-            `${AppConfig.apiUrl}/user/${publicKey}/next-suggestion`,
+            `${AppConfig.apiUrl}/user/next-suggestion`,
             { method: "GET" }
         );
+
+        console.log("[DEBUG] API call succefull")
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));

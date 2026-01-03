@@ -7,6 +7,7 @@ import { router } from 'expo-router'
 import React, { useCallback } from 'react'
 import { ActivityIndicator, Alert, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+// import "./../../../crypto-pollyfill"
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 
@@ -36,13 +37,26 @@ export default function ScrollScreen() {
 
     setLoading(true)
     try {
-      // TODO: Replace with actual user's public key from auth
-      const userPublicKey = 'YOUR_USER_PUBLIC_KEY'
+      // Import getPublicKeyFromStored dynamically
+      const { getPublicKeyFromStored } = await import('@/lib/key-manager')
+      const userPublicKey = await getPublicKeyFromStored()
+      
+      if (!userPublicKey) {
+        Alert.alert(
+          'Error',
+          'Unable to retrieve your public key. Please reconfigure your signing key in Settings.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Go to Settings', onPress: () => router.push('/(tabs)/settings') },
+          ]
+        )
+        return
+      }
       
       // Make payment and fetch next profile
       const response = await makeSwipeForNextSuggestion(userPublicKey)
 
-      // console.log("[DEBUG]: calling the next function")
+      // console.log("[DEBUG]: ", !!global.crypto?.subtle)
       
       if (response.success && response.data) {
         // Use the data from API
