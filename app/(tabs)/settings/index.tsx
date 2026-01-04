@@ -1,6 +1,7 @@
 import { AppText } from '@/components/app-text'
 import { SettingsAppConfig } from '@/components/settings/settings-app-config'
 import { SettingsSigningKey } from '@/components/settings/settings-signing-key'
+import { SettingsThemeToggle } from '@/components/settings/settings-theme-toggle'
 import { SettingsUiAccount } from '@/components/settings/settings-ui-account'
 import { SettingsUiCluster } from '@/components/settings/settings-ui-cluster'
 
@@ -10,6 +11,7 @@ export default function TabSettingsScreen() {
   return (
     <AppPage>
       <SettingsUiAccount />
+      <SettingsThemeToggle />
       <SettingsSigningKey />
       <SettingsAppConfig />
       <SettingsUiCluster />
@@ -23,3 +25,4 @@ export default function TabSettingsScreen() {
     </AppPage>
   )
 }
+

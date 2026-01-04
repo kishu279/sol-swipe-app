@@ -1,6 +1,7 @@
 import { AppText } from '@/components/app-text'
 import { AppView } from '@/components/app-view'
 import { useUserDraft } from '@/components/state/user-details-provider'
+import { useThemeColor } from '@/hooks/use-theme-color'
 import { api } from '@/lib/api'
 import { Button } from '@react-navigation/elements'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -12,6 +13,12 @@ export default function ProfileScreen() {
   const router = useRouter()
   const { updateDraft, draft } = useUserDraft()
   const { publicKey } = useLocalSearchParams<{ publicKey: string }>()
+
+  // Theme colors
+  const cardColor = useThemeColor({}, 'card')
+  const textColor = useThemeColor({}, 'text')
+  const borderColor = useThemeColor({}, 'border')
+  const tintColor = useThemeColor({}, 'tint')
 
   const genderOptions = ['MALE', 'FEMALE', 'NON_BINARY', 'OTHER']
 
@@ -72,7 +79,8 @@ export default function ProfileScreen() {
               value={name}
               onChangeText={setName}
               placeholder="Your name"
-              style={{ backgroundColor: 'white', padding: 12, borderRadius: 8 }}
+              placeholderTextColor={textColor + '50'}
+              style={{ backgroundColor: cardColor, padding: 12, borderRadius: 8, color: textColor, borderWidth: 1, borderColor }}
             />
           </View>
 
@@ -82,8 +90,9 @@ export default function ProfileScreen() {
               value={age}
               onChangeText={setAge}
               placeholder="25"
+              placeholderTextColor={textColor + '50'}
               keyboardType="number-pad"
-              style={{ backgroundColor: 'white', padding: 12, borderRadius: 8 }}
+              style={{ backgroundColor: cardColor, padding: 12, borderRadius: 8, color: textColor, borderWidth: 1, borderColor }}
             />
           </View>
 
@@ -93,9 +102,10 @@ export default function ProfileScreen() {
               value={bio}
               onChangeText={setBio}
               placeholder="Tell us about your interests..."
+              placeholderTextColor={textColor + '50'}
               multiline
               numberOfLines={4}
-              style={{ backgroundColor: 'white', padding: 12, borderRadius: 8 }}
+              style={{ backgroundColor: cardColor, padding: 12, borderRadius: 8, color: textColor, borderWidth: 1, borderColor }}
             />
           </View>
 
@@ -110,12 +120,12 @@ export default function ProfileScreen() {
                     paddingVertical: 12,
                     paddingHorizontal: 16,
                     borderRadius: 8,
-                    backgroundColor: gender === option ? '#007AFF' : 'white',
+                    backgroundColor: gender === option ? tintColor : cardColor,
                     borderWidth: 1,
-                    borderColor: gender === option ? '#007AFF' : '#E5E5E5',
+                    borderColor: gender === option ? tintColor : borderColor,
                   }}
                 >
-                  <AppText style={{ color: gender === option ? 'white' : 'black' }}>{option.replace('_', ' ')}</AppText>
+                  <AppText style={{ color: gender === option ? '#fff' : textColor }}>{option.replace('_', ' ')}</AppText>
                 </TouchableOpacity>
               ))}
             </View>
@@ -127,7 +137,8 @@ export default function ProfileScreen() {
               value={orientation}
               onChangeText={setOrientation}
               placeholder="Straight"
-              style={{ backgroundColor: 'white', padding: 12, borderRadius: 8 }}
+              placeholderTextColor={textColor + '50'}
+              style={{ backgroundColor: cardColor, padding: 12, borderRadius: 8, color: textColor, borderWidth: 1, borderColor }}
             />
           </View>
 

@@ -1,6 +1,7 @@
 import { AppText } from '@/components/app-text'
 import { AppView } from '@/components/app-view'
 import { useUserDraft } from '@/components/state/user-details-provider'
+import { useThemeColor } from '@/hooks/use-theme-color'
 import { api } from '@/lib/api'
 import { Button } from '@react-navigation/elements'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -13,6 +14,11 @@ export default function PreferencesScreen() {
   const { updateDraft, draft } = useUserDraft()
   const { publicKey } = useLocalSearchParams<{ publicKey: string }>()
   const [isLoading, setIsLoading] = useState(false)
+
+  // Theme colors
+  const cardColor = useThemeColor({}, 'card')
+  const textColor = useThemeColor({}, 'text')
+  const borderColor = useThemeColor({}, 'border')
 
   const [ageMin, setAgeMin] = useState(draft?.ageMin?.toString() || '18')
   const [ageMax, setAgeMax] = useState(draft?.ageMax?.toString() || '35')
@@ -129,8 +135,17 @@ export default function PreferencesScreen() {
                 value={ageMin}
                 onChangeText={updateAgeMin}
                 placeholder="Min"
+                placeholderTextColor={textColor + '50'}
                 keyboardType="number-pad"
-                style={{ backgroundColor: 'white', padding: 12, borderRadius: 8, flex: 1 }}
+                style={{ backgroundColor: cardColor, padding: 12, borderRadius: 8, flex: 1, color: textColor, borderWidth: 1, borderColor }}
+              />
+              <TextInput
+                value={ageMax}
+                onChangeText={updateAgeMax}
+                placeholder="Max"
+                placeholderTextColor={textColor + '50'}
+                keyboardType="number-pad"
+                style={{ backgroundColor: cardColor, padding: 12, borderRadius: 8, flex: 1, color: textColor, borderWidth: 1, borderColor }}
               />
               <TextInput
                 value={ageMax}
@@ -148,8 +163,9 @@ export default function PreferencesScreen() {
               value={maxDistance}
               onChangeText={updateDist}
               placeholder="50"
+              placeholderTextColor={textColor + '50'}
               keyboardType="number-pad"
-              style={{ backgroundColor: 'white', padding: 12, borderRadius: 8 }}
+              style={{ backgroundColor: cardColor, padding: 12, borderRadius: 8, color: textColor, borderWidth: 1, borderColor }}
             />
           </View>
 
