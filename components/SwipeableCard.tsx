@@ -22,6 +22,7 @@ interface SwipeableCardProps {
   profile: ScrollDataType;
   onSwipeLeft: () => void;
   onSwipeRight: () => void;
+  onSwipeUp?: () => void; // Optional - navigates to profile when swiped up
   scale?: number; // For background cards to scale up
 }
 
@@ -30,7 +31,7 @@ export interface SwipeableCardRef {
     swipeRight: () => void;
 }
 
-export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(({ profile, onSwipeLeft, onSwipeRight, scale = 1 }, ref) => {
+export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(({ profile, onSwipeLeft, onSwipeRight, onSwipeUp, scale = 1 }, ref) => {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const cardScale = useSharedValue(scale);
@@ -54,33 +55,33 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(({
       }
   }));
 
+  // Wrapper function to safely call onSwipeUp
+  const handleSwipeUpCallback = () => {
+    if (onSwipeUp) {
+      onSwipeUp();
+    }
+  };
+
   const panGesture = Gesture.Pan()
     .onUpdate((event) => {
-      translateX.value = event.translationX;
+      // ONLY track vertical movement for user interaction
+      // Lock X to 0 to prevent horizontal dragging by hand
       translateY.value = event.translationY;
     })
     .onEnd((event) => {
-      if (Math.abs(event.translationX) > SWIPE_THRESHOLD) {
-        // Swipe detected
-        const direction = event.translationX > 0 ? 'right' : 'left';
-        
-        // Fly off screen
-        translateX.value = withTiming(
-          direction === 'right' ? SCREEN_WIDTH * 1.5 : -SCREEN_WIDTH * 1.5,
-          { duration: 250 },
-          () => {
-             if (direction === 'right') {
-               runOnJS(onSwipeRight)();
-             } else {
-               runOnJS(onSwipeLeft)();
-             }
-          }
-        );
+      // Threshold for Swipe Up - halfway up the screen
+      const SWIPE_UP_THRESHOLD = SCREEN_HEIGHT * 0.25;
+      if (event.translationY < -SWIPE_UP_THRESHOLD) {
+        // Swipe Up Detected - fade out and navigate
+        translateY.value = withTiming(-SCREEN_HEIGHT, { duration: 300 }, () => {
+          runOnJS(handleSwipeUpCallback)();
+        });
       } else {
         // Reset position
-        translateX.value = withSpring(0);
         translateY.value = withSpring(0);
       }
+      // Always reset X just in case
+      translateX.value = withSpring(0);
     });
 
   const animatedStyle = useAnimatedStyle(() => {

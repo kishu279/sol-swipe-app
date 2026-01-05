@@ -4,6 +4,7 @@ import { MOCK_DATA, ScrollDataType } from '@/constants/scroll-data'
 import { useSigningKey } from '@/hooks/use-signing-key'
 import { useThemeColor } from '@/hooks/use-theme-color'
 import Icon from '@expo/vector-icons/Ionicons'
+import { useRouter } from 'expo-router'
 import React, { useCallback, useRef, useState } from 'react'
 import { ActivityIndicator, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -14,6 +15,7 @@ export default function ScrollScreen() {
   const backgroundColor = useThemeColor({}, 'background')
   const textColor = useThemeColor({}, 'text')
   const tintColor = useThemeColor({}, 'tint')
+  const router = useRouter()
 
   const { hasKey } = useSigningKey()
   const [loading, setLoading] = useState(false)
@@ -27,6 +29,16 @@ export default function ScrollScreen() {
   const nextProfile = profiles[currentIndex + 1]
 
   const cardRef = useRef<SwipeableCardRef>(null);
+
+  // Navigate to profile page when swiped up
+  const handleSwipeUp = useCallback(() => {
+    if (currentProfile) {
+      router.push({
+        pathname: '/(tabs)/scroll/profile',
+        params: { id: currentProfile.id }
+      });
+    }
+  }, [currentProfile, router]);
 
   const handleSwipe = useCallback(async (direction: 'left' | 'right') => {
     // Standard swipe logic
@@ -44,11 +56,7 @@ export default function ScrollScreen() {
   const onSwipeLeft = () => handleSwipe('left')
   const onSwipeRight = () => handleSwipe('right')
 
-  // Button handlers
-  const handleLikePress = () => {
-      cardRef.current?.swipeRight();
-  }
-
+  // Button handler for nope/next
   const handleNopePress = () => {
       cardRef.current?.swipeLeft();
   }
@@ -68,26 +76,14 @@ export default function ScrollScreen() {
       </View>
 
       <View style={styles.cardsContainer}>
-        {/* Background Card (Next) */}
-        {nextProfile && (
-            <View style={styles.nextCardContainer}>
-                <SwipeableCard 
-                    key={nextProfile.id}
-                    profile={nextProfile}
-                    onSwipeLeft={() => {}}
-                    onSwipeRight={() => {}}
-                    scale={0.95} 
-                />
-            </View>
-        )}
-
-        {/* Foreground Card (Current) */}
+        {/* Single Card - no background card visible */}
         <SwipeableCard 
             ref={cardRef}
             key={currentProfile.id}
             profile={currentProfile}
             onSwipeLeft={onSwipeLeft}
             onSwipeRight={onSwipeRight}
+            onSwipeUp={handleSwipeUp}
         />
       </View>
 
@@ -101,10 +97,10 @@ export default function ScrollScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={[styles.button, styles.likeButton]}
-            onPress={handleLikePress}
+            style={[styles.button, styles.nextButton]}
+            onPress={handleNopePress}
           >
-              <Icon name="heart" size={32} color="#4CD964" />
+              <Icon name="arrow-forward" size={32} color="#007AFF" />
           </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -130,11 +126,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    marginTop: -40 // Pull up slightly to make room for buttons
-  },
-  nextCardContainer: {
-      position: 'absolute',
-      zIndex: -1,
+    marginTop: 10 // Give space from header
   },
   controlsContainer: {
       flexDirection: 'row',
@@ -156,10 +148,10 @@ const styles = StyleSheet.create({
       backgroundColor: 'white'
   },
   nopeButton: {
-      // styles handled by icon color essentially, but can add border if needed
+      // styles handled by icon color
   },
-  likeButton: {
-      // 
+  nextButton: {
+      // styles handled by icon color
   }
 })
 
