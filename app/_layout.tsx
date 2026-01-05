@@ -47,8 +47,8 @@ export default function RootLayout() {
         <AppSplashController />
         <RootNavigator />
         <StatusBar style="auto" />
+        <PortalHost />
       </AppProviders>
-      <PortalHost />
     </GestureHandlerRootView>
   )
 }

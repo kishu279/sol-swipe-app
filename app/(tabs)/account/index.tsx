@@ -1,11 +1,13 @@
-import { AppText } from '@/components/app-text'
-import { AppView } from '@/components/app-view'
-import { useUserDraft } from '@/components/state/user-details-provider'
-import { UiIconSymbol } from '@/components/ui/ui-icon-symbol'
-import { useThemeColor } from '@/hooks/use-theme-color'
-import { useRouter } from 'expo-router'
-import React from 'react'
-import { ScrollView, TouchableOpacity, View } from 'react-native'
+import { AppText } from '@/components/app-text';
+import { AppView } from '@/components/app-view';
+import { useUserDraft } from '@/components/state/user-details-provider';
+import { UiIconSymbol } from '@/components/ui/ui-icon-symbol';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import * as DocumentPicker from 'expo-document-picker';
+import { File } from 'expo-file-system';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { ScrollView, TouchableOpacity, View } from 'react-native';
 
 export default function AccountScreen() {
   const { user, refreshUser } = useUserDraft()
@@ -36,6 +38,17 @@ export default function AccountScreen() {
       </AppView>
     )
   }
+
+  const handlePickImage = React.useCallback(async () => {
+    try  {
+
+      const result = await DocumentPicker.getDocumentAsync({ copyToCacheDirectory: true });
+      const file = new File(result.assets[0]);
+      console.log(file.textSync());
+    } catch(error) {
+      console.log(error)
+    }
+  }, [])
 
   return (
     <>
@@ -72,24 +85,55 @@ export default function AccountScreen() {
           <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
             {/* Profile Header */}
             <View style={{ alignItems: 'center', padding: 24, paddingVertical: 48, gap: 16 }}>
-              <View
-                style={{
-                  width: 120,
-                  height: 120,
-                  borderRadius: 60,
-                  backgroundColor: iconBackground,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: 10,
-                  elevation: 5,
+              <TouchableOpacity
+                onPress={() => {
+                  // TODO: Implement image picker
+                  // alert('Image upload coming soon!')
+                  handlePickImage()
                 }}
+                activeOpacity={0.8}
               >
-                <UiIconSymbol name="person.fill" size={60} color={iconPlaceholder} />
-
-              </View>
+                <View
+                  style={{
+                    width: 120,
+                    height: 120,
+                    borderRadius: 60,
+                    backgroundColor: iconBackground,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 10,
+                    elevation: 5,
+                  }}
+                >
+                  <UiIconSymbol name="person.fill" size={60} color={iconPlaceholder} />
+                </View>
+                {/* Red Exclamation Badge */}
+                <View
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    width: 36,
+                    height: 36,
+                    borderRadius: 18,
+                    backgroundColor: '#ef4444',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    borderWidth: 3,
+                    borderColor: iconBackground,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.2,
+                    shadowRadius: 4,
+                    elevation: 4,
+                  }}
+                >
+                  <AppText style={{ color: '#fff', fontSize: 20, fontWeight: 'bold' }}>!</AppText>
+                </View>
+              </TouchableOpacity>
               <View style={{ alignItems: 'center', gap: 4 }}>
                 <AppText type="title" style={{ fontSize: 28 }}>
                   {user.displayName}, {user.age}

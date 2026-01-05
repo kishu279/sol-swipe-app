@@ -1,3 +1,4 @@
+import LogoIcon from '@/components/logo'
 import { UiIconSymbol } from '@/components/ui/ui-icon-symbol'
 import { Tabs } from 'expo-router'
 import React from 'react'
@@ -19,7 +20,8 @@ export default function TabLayout() {
         name="scroll"
         options={{
           title: 'Scroll',
-          tabBarIcon: ({ color }) => <UiIconSymbol size={28} name="scroll.fill" color={color} />,
+          // tabBarIcon: ({ color }) => <UiIconSymbol size={28} name="scroll.fill" color={color} />,
+          tabBarIcon: () => <LogoIcon />,
         }}
       />
       <Tabs.Screen

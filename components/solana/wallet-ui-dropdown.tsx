@@ -10,11 +10,13 @@ import React, { Fragment } from 'react'
 import { Linking, StyleSheet } from 'react-native'
 import { useUserDraft } from '../state/user-details-provider'
 import { WalletUiButtonConnect } from './wallet-ui-button-connect'
+import { useSigningKey } from '@/hooks/use-signing-key'
 
 function useDropdownItems() {
   const { getExplorerUrl } = useCluster()
   const { account, disconnect } = useWalletUi()
   const { reset } = useUserDraft()
+  const { deleteKey } = useSigningKey()
 
   if (!account) {
     return []
@@ -32,7 +34,8 @@ function useDropdownItems() {
       label: 'Disconnect',
       onPress: async () => {
         await disconnect()
-        // reset()
+        deleteKey()
+        reset()
       },
     },
   ]

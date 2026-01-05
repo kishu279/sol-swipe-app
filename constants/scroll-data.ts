@@ -18,6 +18,10 @@ export type ScrollDataType = {
   }
   profileImage: string
   images: string[]
+  questions: {
+    question: string
+    answer: string
+  }[]
 }
 
 export const MOCK_DATA: ScrollDataType[] = [
@@ -46,7 +50,11 @@ export const MOCK_DATA: ScrollDataType[] = [
       'https://fastly.picsum.photos/id/541/200/300.jpg?hmac=nhG-hlD63wW6srZpMlMH73GwqdwqiMD5VDrLV7TQJ08',
       'https://fastly.picsum.photos/id/951/200/200.jpg?hmac=FVINiB5mMdXIUDDk4AYptO4s4A2ETDNX4n3RSDaoB4E',
     ],
-    // ...existing code...
+    questions: [
+      { question: 'Dating me is like...', answer: 'Finding an extra chicken nugget in your 6-piece meal.' },
+      { question: 'My simple pleasure', answer: 'The smell of rain on dry earth (Petrichor).' },
+      { question: 'I bet you can\'t', answer: 'Beat me at Mario Kart.' },
+    ],
   },
   {
     id: '2',
@@ -73,7 +81,11 @@ export const MOCK_DATA: ScrollDataType[] = [
       'https://fastly.picsum.photos/id/541/200/300.jpg?hmac=nhG-hlD63wW6srZpMlMH73GwqdwqiMD5VDrLV7TQJ08',
       'https://fastly.picsum.photos/id/951/200/200.jpg?hmac=FVINiB5mMdXIUDDk4AYptO4s4A2ETDNX4n3RSDaoB4E',
     ],
-    // ...existing code...
+    questions: [
+      { question: 'The best way to ask me out is...', answer: 'By suggesting a new taco place.' },
+      { question: 'My most controversial opinion', answer: 'Pineapple belongs on pizza.' },
+      { question: 'I geek out on', answer: 'Obscure 80s synthesizer music.' },
+    ],
   },
   {
     id: '3',
@@ -100,7 +112,11 @@ export const MOCK_DATA: ScrollDataType[] = [
       'https://fastly.picsum.photos/id/541/200/300.jpg?hmac=nhG-hlD63wW6srZpMlMH73GwqdwqiMD5VDrLV7TQJ08',
       'https://fastly.picsum.photos/id/951/200/200.jpg?hmac=FVINiB5mMdXIUDDk4AYptO4s4A2ETDNX4n3RSDaoB4E',
     ],
-    // ...existing code...
+    questions: [
+      { question: 'A non-negotiable', answer: 'Must love dogs (I have three).' },
+      { question: 'My weirdest talent', answer: 'I can recite the alphabet backwards in under 5 seconds.' },
+      { question: 'Teach me something about', answer: 'Quantum physics or knitting.' },
+    ],
   },
   {
     id: '4',
@@ -127,7 +143,11 @@ export const MOCK_DATA: ScrollDataType[] = [
       'https://fastly.picsum.photos/id/541/200/300.jpg?hmac=nhG-hlD63wW6srZpMlMH73GwqdwqiMD5VDrLV7TQJ08',
       'https://fastly.picsum.photos/id/951/200/200.jpg?hmac=FVINiB5mMdXIUDDk4AYptO4s4A2ETDNX4n3RSDaoB4E',
     ],
-    // ...existing code...
+    questions: [
+      { question: 'I\'m looking for', answer: 'Someone to share silence with comfortably.' },
+      { question: 'My favorite spot in the city', answer: 'The rooftop bar at The Standard.' },
+      { question: 'Don\'t hate me if I', answer: 'Steal the covers.' },
+    ],
   },
   {
     id: '5',
@@ -154,7 +174,11 @@ export const MOCK_DATA: ScrollDataType[] = [
       'https://fastly.picsum.photos/id/541/200/300.jpg?hmac=nhG-hlD63wW6srZpMlMH73GwqdwqiMD5VDrLV7TQJ08',
       'https://fastly.picsum.photos/id/951/200/200.jpg?hmac=FVINiB5mMdXIUDDk4AYptO4s4A2ETDNX4n3RSDaoB4E',
     ],
-    // ...existing code...
+    questions: [
+      { question: 'My spirit animal', answer: 'A sleepy sloth.' },
+      { question: 'Song on repeat', answer: 'Heat Waves by Glass Animals.' },
+      { question: 'Ideal Sunday', answer: 'Brunch, museum, nap.' },
+    ],
   },
   {
     id: '6',
@@ -181,7 +205,11 @@ export const MOCK_DATA: ScrollDataType[] = [
       'https://fastly.picsum.photos/id/541/200/300.jpg?hmac=nhG-hlD63wW6srZpMlMH73GwqdwqiMD5VDrLV7TQJ08',
       'https://fastly.picsum.photos/id/951/200/200.jpg?hmac=FVINiB5mMdXIUDDk4AYptO4s4A2ETDNX4n3RSDaoB4E',
     ],
-    // ...existing code...
+    questions: [
+      { question: 'In my zombie apocalypse team, I am', answer: 'The bait.' },
+      { question: 'My hidden talent', answer: 'I can wiggle my ears.' },
+      { question: 'We\'ll get along if', answer: 'You laugh at my dad jokes.' },
+    ],
   },
   {
     id: '7',
@@ -208,7 +236,11 @@ export const MOCK_DATA: ScrollDataType[] = [
       'https://fastly.picsum.photos/id/541/200/300.jpg?hmac=nhG-hlD63wW6srZpMlMH73GwqdwqiMD5VDrLV7TQJ08',
       'https://fastly.picsum.photos/id/951/200/200.jpg?hmac=FVINiB5mMdXIUDDk4AYptO4s4A2ETDNX4n3RSDaoB4E',
     ],
-    // ...existing code...
+    questions: [
+      { question: 'My love language', answer: 'Acts of Service.' },
+      { question: 'Best travel story', answer: 'Getting lost in Tokyo at 3 AM.' },
+      { question: 'Two truths and a lie', answer: 'I\'ve met Beyonce, I can fly a plane, I hate chocolate.' },
+    ],
   },
   {
     id: '8',
@@ -235,7 +267,11 @@ export const MOCK_DATA: ScrollDataType[] = [
       'https://fastly.picsum.photos/id/541/200/300.jpg?hmac=nhG-hlD63wW6srZpMlMH73GwqdwqiMD5VDrLV7TQJ08',
       'https://fastly.picsum.photos/id/951/200/200.jpg?hmac=FVINiB5mMdXIUDDk4AYptO4s4A2ETDNX4n3RSDaoB4E',
     ],
-    // ...existing code...
+    questions: [
+      { question: 'My key to happiness', answer: 'Good coffee and better friends.' },
+      { question: 'Dating me is like', answer: 'Winning the lottery but losing the ticket.' },
+      { question: 'I shouldn\'t say this but', answer: 'I actually like Nickelback.' },
+    ],
   },
   {
     id: '9',
@@ -262,7 +298,11 @@ export const MOCK_DATA: ScrollDataType[] = [
       'https://fastly.picsum.photos/id/541/200/300.jpg?hmac=nhG-hlD63wW6srZpMlMH73GwqdwqiMD5VDrLV7TQJ08',
       'https://fastly.picsum.photos/id/951/200/200.jpg?hmac=FVINiB5mMdXIUDDk4AYptO4s4A2ETDNX4n3RSDaoB4E',
     ],
-    // ...existing code...
+    questions: [
+      { question: 'A perfect day', answer: 'Gym, work, protein.' },
+      { question: 'My last meal would be', answer: 'A giant steak.' },
+      { question: 'I\'m obsessed with', answer: 'My gains.' },
+    ],
   },
   {
     id: '10',
@@ -289,7 +329,11 @@ export const MOCK_DATA: ScrollDataType[] = [
       'https://fastly.picsum.photos/id/541/200/300.jpg?hmac=nhG-hlD63wW6srZpMlMH73GwqdwqiMD5VDrLV7TQJ08',
       'https://fastly.picsum.photos/id/951/200/200.jpg?hmac=FVINiB5mMdXIUDDk4AYptO4s4A2ETDNX4n3RSDaoB4E',
     ],
-    // ...existing code...
+    questions: [
+      { question: 'My favorite author', answer: 'Murakami.' },
+      { question: 'Dating me is like', answer: 'Reading a really long book.' },
+      { question: 'I can\'t shut up about', answer: 'Local coffee roasters.' },
+    ],
   },
   {
     id: '11',
@@ -316,6 +360,10 @@ export const MOCK_DATA: ScrollDataType[] = [
       'https://fastly.picsum.photos/id/541/200/300.jpg?hmac=nhG-hlD63wW6srZpMlMH73GwqdwqiMD5VDrLV7TQJ08',
       'https://fastly.picsum.photos/id/951/200/200.jpg?hmac=FVINiB5mMdXIUDDk4AYptO4s4A2ETDNX4n3RSDaoB4E',
     ],
-    // ...existing code...
+    questions: [
+      { question: 'Dating is like me', answer: 'A rollercoaster you can\'t get off.' },
+      { question: 'My special skill', answer: 'Making tea perfectly.' },
+      { question: 'I\'ll fall for you if', answer: 'You bring me chocolate.' },
+    ],
   },
 ]
