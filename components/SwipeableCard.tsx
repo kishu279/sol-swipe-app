@@ -2,7 +2,7 @@
 import { ScrollDataType } from '@/constants/scroll-data';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { LinearGradient } from 'expo-linear-gradient';
-import React from 'react';
+import React, { forwardRef, useImperativeHandle } from 'react';
 import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -25,7 +25,12 @@ interface SwipeableCardProps {
   scale?: number; // For background cards to scale up
 }
 
-export function SwipeableCard({ profile, onSwipeLeft, onSwipeRight, scale = 1 }: SwipeableCardProps) {
+export interface SwipeableCardRef {
+    swipeLeft: () => void;
+    swipeRight: () => void;
+}
+
+export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(({ profile, onSwipeLeft, onSwipeRight, scale = 1 }, ref) => {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const cardScale = useSharedValue(scale);
@@ -34,6 +39,20 @@ export function SwipeableCard({ profile, onSwipeLeft, onSwipeRight, scale = 1 }:
   const textColor = useThemeColor({}, 'text');
   const tintColor = useThemeColor({}, 'tint');
   const cardBackground = useThemeColor({}, 'background');
+
+  // Expose swipe methods to parent
+  useImperativeHandle(ref, () => ({
+      swipeLeft: () => {
+          translateX.value = withTiming(-SCREEN_WIDTH * 1.5, { duration: 300 }, () => {
+              runOnJS(onSwipeLeft)();
+          });
+      },
+      swipeRight: () => {
+          translateX.value = withTiming(SCREEN_WIDTH * 1.5, { duration: 300 }, () => {
+              runOnJS(onSwipeRight)();
+          });
+      }
+  }));
 
   const panGesture = Gesture.Pan()
     .onUpdate((event) => {
@@ -141,6 +160,24 @@ export function SwipeableCard({ profile, onSwipeLeft, onSwipeRight, scale = 1 }:
                    <Text style={[styles.answerText, { color: textColor }]}>{q.answer}</Text>
                </View>
            ))}
+
+           {/* Preferences Section */}
+           <View style={styles.preferencesContainer}>
+               <Text style={[styles.prefTitle, { color: tintColor }]}>Looking For</Text>
+               <View style={styles.prefRow}>
+                   <Text style={[styles.prefText, { color: textColor }]}>
+                       {profile.preferences.preferredGenders.join(', ')}
+                   </Text>
+                   <Text style={[styles.prefText, { color: textColor }]}>•</Text>
+                   <Text style={[styles.prefText, { color: textColor }]}>
+                       {profile.preferences.ageMin}-{profile.preferences.ageMax} y/o
+                   </Text>
+                   <Text style={[styles.prefText, { color: textColor }]}>•</Text>
+                   <Text style={[styles.prefText, { color: textColor }]}>
+                       {profile.preferences.maxDistanceKm}km
+                   </Text>
+               </View>
+           </View>
        </View>
 
 
@@ -156,7 +193,7 @@ export function SwipeableCard({ profile, onSwipeLeft, onSwipeRight, scale = 1 }:
       </Animated.View>
     </GestureDetector>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: {
@@ -237,6 +274,28 @@ const styles = StyleSheet.create({
   answerText: {
       fontSize: 16,
       fontWeight: '500',
+  },
+  preferencesContainer: {
+      marginTop: 'auto', // Push to bottom of info section
+      paddingTop: 10,
+      borderTopWidth: 1,
+      borderTopColor: 'rgba(0,0,0,0.05)'
+  },
+  prefTitle: {
+      fontSize: 12,
+      fontWeight: '700',
+      marginBottom: 4,
+      opacity: 0.7,
+      textTransform: 'uppercase'
+  },
+  prefRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6
+  },
+  prefText: {
+      fontSize: 13,
+      fontWeight: '600'
   },
   
   // Stamps

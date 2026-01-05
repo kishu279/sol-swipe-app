@@ -1,21 +1,24 @@
+
+import { SwipeableCard, SwipeableCardRef } from '@/components/SwipeableCard'
 import { MOCK_DATA, ScrollDataType } from '@/constants/scroll-data'
 import { useSigningKey } from '@/hooks/use-signing-key'
 import { useThemeColor } from '@/hooks/use-theme-color'
-import { SwipeableCard } from '@/components/SwipeableCard'
-import React, { useCallback, useState } from 'react'
-import { ActivityIndicator, Dimensions, StyleSheet, Text, View } from 'react-native'
+import Icon from '@expo/vector-icons/Ionicons'
+import React, { useCallback, useRef, useState } from 'react'
+import { ActivityIndicator, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
+
 export default function ScrollScreen() {
   const backgroundColor = useThemeColor({}, 'background')
   const textColor = useThemeColor({}, 'text')
+  const tintColor = useThemeColor({}, 'tint')
 
   const { hasKey } = useSigningKey()
   const [loading, setLoading] = useState(false)
   
   // Store the stack of profiles. 
-  // currentlyVisibleIndex points to the card at the "top" of the pile.
   const [profiles, setProfiles] = useState<ScrollDataType[]>(MOCK_DATA)
   const [currentIndex, setCurrentIndex] = useState(0)
 
@@ -23,53 +26,32 @@ export default function ScrollScreen() {
   const currentProfile = profiles[currentIndex]
   const nextProfile = profiles[currentIndex + 1]
 
+  const cardRef = useRef<SwipeableCardRef>(null);
+
   const handleSwipe = useCallback(async (direction: 'left' | 'right') => {
-    // If no more profiles, cycle back or fetch more
-    // For now, we cycle mock data if we run out, or just stop? 
-    // Let's implement fetching logic if it was real.
-    
-    // Trigger generic "next" logic (payment/fetch) mostly on right swipe? 
-    // Or every swipe consumes a "swipe"?
-    // User requested "makeSwipeForNextSuggestion" triggers on every swipe generally in dating apps (paying for the view/match potential).
-    // Let's assume we charge for every "interaction" that leads to a new profile?
-    
-    // But currently `makeSwipeForNextSuggestion` fetches the *next* suggestion.
-    // So we should pre-fetch?
-    
-    // For this UI demo, let's just increment index and cycle if needed.
-    // Logic for payment can be hooked here.
-    
+    // Standard swipe logic
     if (direction === 'right') {
         console.log("Liked profile:", currentProfile?.displayName)
-        // Trigger payment?
-        // await triggerPayment()
     } else {
         console.log("Passed profile:", currentProfile?.displayName)
     }
 
-    // Advance stack
-    /* 
-       Note: In a real app with "swipe payment", we might need to block until payment succeeds 
-       before revealing the NEXT card fully? Or we pay to "unlock" the next one?
-       The user prompt implies "scroll data should be visualize...".
-       
-       Let's keep the existing `nextProfile` logic as a background fetch for NEW data, 
-       but for now we are just iterating MOCK_DATA.
-    */
-   
     setTimeout(() => {
         setCurrentIndex((prev) => (prev + 1) % profiles.length)
-    }, 200) // Small delay to allow animation to clear
-    
+    }, 200) 
   }, [currentProfile, profiles.length])
-
-  // Optional: Trigger the actual payment logic as requested in original code?
-  // The original code had a "Next" button that did: `makeSwipeForNextSuggestion`.
-  // We can integrate that if we want to fetch *real* data.
-  // But user said "use the static data". So we skip the generic fetch for now.
 
   const onSwipeLeft = () => handleSwipe('left')
   const onSwipeRight = () => handleSwipe('right')
+
+  // Button handlers
+  const handleLikePress = () => {
+      cardRef.current?.swipeRight();
+  }
+
+  const handleNopePress = () => {
+      cardRef.current?.swipeLeft();
+  }
 
   if (!currentProfile) {
       return (
@@ -94,13 +76,14 @@ export default function ScrollScreen() {
                     profile={nextProfile}
                     onSwipeLeft={() => {}}
                     onSwipeRight={() => {}}
-                    scale={0.95} // Slightly smaller
+                    scale={0.95} 
                 />
             </View>
         )}
 
         {/* Foreground Card (Current) */}
         <SwipeableCard 
+            ref={cardRef}
             key={currentProfile.id}
             profile={currentProfile}
             onSwipeLeft={onSwipeLeft}
@@ -108,7 +91,22 @@ export default function ScrollScreen() {
         />
       </View>
 
-      {/* Optional: Bottom control buttons if we want them, but swipes are enough */}
+      {/* Control Buttons */}
+      <View style={styles.controlsContainer}>
+          <TouchableOpacity 
+            style={[styles.button, styles.nopeButton]}
+            onPress={handleNopePress}
+          >
+              <Icon name="close" size={32} color="#FF3B30" />
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.button, styles.likeButton]}
+            onPress={handleLikePress}
+          >
+              <Icon name="heart" size={32} color="#4CD964" />
+          </TouchableOpacity>
+      </View>
     </SafeAreaView>
   )
 }
@@ -132,11 +130,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    marginTop: -20
+    marginTop: -40 // Pull up slightly to make room for buttons
   },
   nextCardContainer: {
       position: 'absolute',
       zIndex: -1,
+  },
+  controlsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      marginBottom: 30,
+      gap: 40
+  },
+  button: {
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 5,
+      backgroundColor: 'white'
+  },
+  nopeButton: {
+      // styles handled by icon color essentially, but can add border if needed
+  },
+  likeButton: {
+      // 
   }
 })
 
