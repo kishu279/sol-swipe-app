@@ -1,8 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter } from 'expo-router'
 import { createContext, useContext, useEffect, useState } from 'react'
-import { Alert } from 'react-native'
-import { AppConfig } from '@/constants/app-config'
 
 // TYPE OF DATA TO BE COLLECTED FOR USER PROFILE
 export type UserDraft = {
@@ -12,6 +10,13 @@ export type UserDraft = {
   age?: number
   gender?: string
   orientation?: string
+  heightCm?: number
+  hobbies?: string[]
+  country?: string
+  state?: string
+  city?: string
+  profession?: string
+  religion?: string
   ageMin?: number
   ageMax?: number
   maxDistanceKm?: number

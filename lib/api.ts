@@ -17,6 +17,13 @@ export interface Profile {
   age: number
   gender: string
   orientation: string
+  heightCm?: number
+  hobbies?: string[]
+  country: string
+  state: string
+  city: string
+  profession?: string
+  religion?: string
 }
 
 export interface Preferences {
@@ -104,7 +111,20 @@ export const api = {
 
   createProfile: async (
     publicKey: string,
-    profileData: { name: string; age: number; bio: string; gender: string; orientation: string },
+    profileData: {
+      name: string
+      age: number
+      bio: string
+      gender: string
+      orientation: string
+      heightCm?: number
+      hobbies?: string[]
+      country: string
+      state: string
+      city: string
+      profession?: string
+      religion?: string
+    },
   ): Promise<{
     success: boolean
     message: string

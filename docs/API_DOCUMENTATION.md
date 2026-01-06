@@ -323,10 +323,10 @@ Submit prompt answers
 
 ## Next Suggestion (Paid)
 
-### `GET /api/user/:publicKey/next-suggestion`
-Get next matching user - requires Solana payment verification
+### `GET /api/user/next-suggestion`
+Get next matching user - requires Solana x402 payment (USDC devnet).
 
-**URL Params:** `publicKey` - Wallet public key
+**Headers:** `X-PAYMENT` - x402 payment header with payment receipt
 
 **Response (200):**
 ```json
@@ -356,6 +356,153 @@ Get next matching user - requires Solana payment verification
 
 ---
 
+## Likes
+
+### `POST /api/user/:publicKey/like`
+Like another user (creates match if mutual)
+
+**URL Params:** `publicKey` - Wallet public key of the user liking
+
+**Request Body:**
+```json
+{
+  "toWhom": "string"
+}
+```
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "data": {
+    "likeId": "string",
+    "message": "Like created successfully"
+  }
+}
+```
+
+**Response (201) - Match Created:**
+```json
+{
+  "success": true,
+  "data": {
+    "likeId": "string",
+    "matchId": "string",
+    "message": "It's a match!"
+  }
+}
+```
+
+**Error (400):**
+```json
+{
+  "success": false,
+  "error": "Cannot like yourself" | "Missing toWhom in request body"
+}
+```
+
+**Error (404):**
+```json
+{
+  "success": false,
+  "error": "User not found"
+}
+```
+
+**Error (409):**
+```json
+{
+  "success": false,
+  "error": "Like already exists"
+}
+```
+
+---
+
+### `GET /api/user/:publicKey/likes`
+Get all likes received by the user
+
+**URL Params:** `publicKey` - Wallet public key
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "count": "number",
+    "likes": [
+      {
+        "id": "string",
+        "fromUser": {
+          "id": "string",
+          "walletPubKey": "string",
+          "profile": {
+            "displayName": "string",
+            "age": "number",
+            "gender": "MALE|FEMALE|NON_BINARY",
+            "bio": "string"
+          }
+        },
+        "createdAt": "ISO8601"
+      }
+    ]
+  }
+}
+```
+
+**Error (404):**
+```json
+{
+  "success": false,
+  "error": "User not found"
+}
+```
+
+---
+
+## Matches
+
+### `GET /api/user/:publicKey/matches`
+Get all mutual matches for the user
+
+**URL Params:** `publicKey` - Wallet public key
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "count": "number",
+    "matches": [
+      {
+        "id": "string",
+        "matchedUser": {
+          "id": "string",
+          "walletPubKey": "string",
+          "profile": {
+            "displayName": "string",
+            "age": "number",
+            "gender": "MALE|FEMALE|NON_BINARY",
+            "bio": "string"
+          }
+        },
+        "createdAt": "ISO8601"
+      }
+    ]
+  }
+}
+```
+
+**Error (404):**
+```json
+{
+  "success": false,
+  "error": "User not found"
+}
+```
+
+---
+
 ## Status Codes
 
 - `200` - Success
@@ -363,4 +510,5 @@ Get next matching user - requires Solana payment verification
 - `400` - Bad Request
 - `402` - Payment Required
 - `404` - Not Found
+- `409` - Conflict (duplicate resource)
 - `500` - Server Error

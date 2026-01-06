@@ -31,6 +31,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <UiIconSymbol size={28} name="gearshape.fill" color={color} />,
         }}
       />
+      <Tabs.Screen name="debug" options={{ title: 'Debug', tabBarIcon: ({color}) => <UiIconSymbol size={28} name="building.2.fill" color={color} /> }} />
     </Tabs>
   )
 }
