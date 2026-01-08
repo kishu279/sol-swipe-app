@@ -1,11 +1,11 @@
-
 import { SwipeableCard, SwipeableCardRef } from '@/components/SwipeableCard'
+import { useScrollData } from '@/components/state/scroll-data-provider'
 import { MOCK_DATA, ScrollDataType } from '@/constants/scroll-data'
 import { useSigningKey } from '@/hooks/use-signing-key'
 import { useThemeColor } from '@/hooks/use-theme-color'
 import Icon from '@expo/vector-icons/Ionicons'
 import { useRouter } from 'expo-router'
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -17,9 +17,17 @@ export default function ScrollScreen() {
   const tintColor = useThemeColor({}, 'tint')
   const router = useRouter()
 
-  const { hasKey } = useSigningKey()
+  const { hasKey, checkingKey } = useSigningKey()
+  const { setCurrentProfile } = useScrollData()
   const [loading, setLoading] = useState(false)
-  
+
+  // Auth guard - redirect to sign-in if not authenticated
+  useEffect(() => {
+    if (!checkingKey && !hasKey) {
+      router.replace('/sign-in')
+    }
+  }, [hasKey, checkingKey, router])
+
   // Store the stack of profiles. 
   const [profiles, setProfiles] = useState<ScrollDataType[]>(MOCK_DATA)
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -27,6 +35,13 @@ export default function ScrollScreen() {
   // We show 2 cards: Current and Next
   const currentProfile = profiles[currentIndex]
   const nextProfile = profiles[currentIndex + 1]
+
+  // Persist current profile to ScrollDataProvider when it changes
+  useEffect(() => {
+    if (currentProfile) {
+      setCurrentProfile(currentProfile)
+    }
+  }, [currentProfile, setCurrentProfile])
 
   const cardRef = useRef<SwipeableCardRef>(null);
 
@@ -43,14 +58,14 @@ export default function ScrollScreen() {
   const handleSwipe = useCallback(async (direction: 'left' | 'right') => {
     // Standard swipe logic
     if (direction === 'right') {
-        console.log("Liked profile:", currentProfile?.displayName)
+      console.log("Liked profile:", currentProfile?.displayName)
     } else {
-        console.log("Passed profile:", currentProfile?.displayName)
+      console.log("Passed profile:", currentProfile?.displayName)
     }
 
     setTimeout(() => {
-        setCurrentIndex((prev) => (prev + 1) % profiles.length)
-    }, 200) 
+      setCurrentIndex((prev) => (prev + 1) % profiles.length)
+    }, 200)
   }, [currentProfile, profiles.length])
 
   const onSwipeLeft = () => handleSwipe('left')
@@ -58,15 +73,24 @@ export default function ScrollScreen() {
 
   // Button handler for nope/next
   const handleNopePress = () => {
-      cardRef.current?.swipeLeft();
+    cardRef.current?.swipeLeft();
+  }
+
+  // Show loading ONLY while checking auth
+  if (checkingKey) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor, justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    )
   }
 
   if (!currentProfile) {
-      return (
-          <SafeAreaView style={[styles.container, { backgroundColor, justifyContent: 'center', alignItems: 'center' }]}>
-              <ActivityIndicator size="large" />
-          </SafeAreaView>
-      )
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor, justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    )
   }
 
   return (
@@ -77,31 +101,31 @@ export default function ScrollScreen() {
 
       <View style={styles.cardsContainer}>
         {/* Single Card - no background card visible */}
-        <SwipeableCard 
-            ref={cardRef}
-            key={currentProfile.id}
-            profile={currentProfile}
-            onSwipeLeft={onSwipeLeft}
-            onSwipeRight={onSwipeRight}
-            onSwipeUp={handleSwipeUp}
+        <SwipeableCard
+          ref={cardRef}
+          key={currentProfile.id}
+          profile={currentProfile}
+          onSwipeLeft={onSwipeLeft}
+          onSwipeRight={onSwipeRight}
+          onSwipeUp={handleSwipeUp}
         />
       </View>
 
       {/* Control Buttons */}
       <View style={styles.controlsContainer}>
-          <TouchableOpacity 
-            style={[styles.button, styles.nopeButton]}
-            onPress={handleNopePress}
-          >
-              <Icon name="close" size={32} color="#FF3B30" />
-          </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.nopeButton]}
+          onPress={handleNopePress}
+        >
+          <Icon name="close" size={32} color="#FF3B30" />
+        </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[styles.button, styles.nextButton]}
-            onPress={handleNopePress}
-          >
-              <Icon name="arrow-forward" size={32} color="#007AFF" />
-          </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.nextButton]}
+          onPress={handleNopePress}
+        >
+          <Icon name="arrow-forward" size={32} color="#007AFF" />
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   )
@@ -113,45 +137,45 @@ const styles = StyleSheet.create({
     overflow: 'hidden'
   },
   header: {
-      paddingHorizontal: 20,
-      paddingVertical: 10,
-      zIndex: 10
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    zIndex: 10
   },
   headerTitle: {
-      fontSize: 34,
-      fontWeight: 'bold',
+    fontSize: 34,
+    fontWeight: 'bold',
   },
   cardsContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    marginTop: 10 // Give space from header
+    marginTop: 48 // Give space from header
   },
   controlsContainer: {
-      flexDirection: 'row',
-      justifyContent: 'center',
-      marginBottom: 30,
-      gap: 40
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 30,
+    gap: 40
   },
   button: {
-      width: 64,
-      height: 64,
-      borderRadius: 32,
-      justifyContent: 'center',
-      alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.2,
-      shadowRadius: 4,
-      elevation: 5,
-      backgroundColor: 'white'
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+    backgroundColor: 'white'
   },
   nopeButton: {
-      // styles handled by icon color
+    // styles handled by icon color
   },
   nextButton: {
-      // styles handled by icon color
+    // styles handled by icon color
   }
 })
 

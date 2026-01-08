@@ -35,6 +35,7 @@ export interface UserDraftContextType {
   refreshUser: () => Promise<void>
 }
 
+
 // CREATE CONTEXT
 export const UserDraftContext = createContext<UserDraftContextType | undefined>(undefined)
 

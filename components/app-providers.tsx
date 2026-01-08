@@ -4,6 +4,7 @@ import { SolanaProvider } from '@/components/solana/solana-provider'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { PropsWithChildren } from 'react'
 import { ClusterProvider } from './cluster/cluster-provider'
+import { ScrollDataProvider } from './state/scroll-data-provider'
 import { UserDraftProvider } from './state/user-details-provider'
 
 const queryClient = new QueryClient()
@@ -17,7 +18,10 @@ export function AppProviders({ children }: PropsWithChildren) {
             {/* AUTH STATE */}
             <AuthProvider>
               {/* USER STATE */}
-              <UserDraftProvider>{children}</UserDraftProvider>
+              <UserDraftProvider>
+                {/* SCROLL DATA STATE */}
+                <ScrollDataProvider>{children}</ScrollDataProvider>
+              </UserDraftProvider>
             </AuthProvider>
           </SolanaProvider>
         </ClusterProvider>

@@ -230,4 +230,50 @@ export const api = {
       return null
     }
   },
+
+  /**
+   * Like another user (creates match if mutual)
+   * POST /api/user/:publicKey/like
+   */
+  likeUser: async (
+    publicKey: string,
+    toWhom: string,
+  ): Promise<{
+    success: boolean
+    message: string
+    isMatch: boolean
+    swipeId?: string
+  }> => {
+    try {
+      const response = await fetch(`${AppConfig.apiUrl}/user/${publicKey}/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ toWhom }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        return {
+          success: true,
+          message: data.message || 'User liked successfully',
+          isMatch: data.isMatch || false,
+          swipeId: data.swipeId,
+        }
+      }
+
+      return {
+        success: false,
+        message: data.error || 'Failed to like user',
+        isMatch: false,
+      }
+    } catch (error) {
+      console.error('Error liking user:', error)
+      return {
+        success: false,
+        message: 'Failed to like user',
+        isMatch: false,
+      }
+    }
+  },
 }

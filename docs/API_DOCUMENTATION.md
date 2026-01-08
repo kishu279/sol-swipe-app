@@ -4,17 +4,23 @@
 
 ---
 
-## Health Check
+## Quick Reference
 
-### `GET /api/health`
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Server and database are healthy"
-}
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | Health check |
+| `POST` | `/user` | Create user |
+| `GET` | `/user/:publicKey` | Get user details |
+| `POST` | `/user/profile` | Create profile |
+| `PUT` | `/user/profile` | Update profile |
+| `POST` | `/user/:publicKey/preferences` | Set preferences |
+| `GET` | `/user/:publicKey/preferences` | Get preferences |
+| `GET` | `/user/:publicKey/prompts` | Get available prompts |
+| `POST` | `/user/:publicKey/prompts` | Submit prompt answers |
+| `GET` | `/user/:publicKey/next-suggestion` | Get next match suggestion |
+| `POST` | `/user/:publicKey/like` | Like a user |
+| `GET` | `/user/:publicKey/likes` | Get received likes |
+| `GET` | `/user/:publicKey/matches` | Get matches |
 
 ---
 
@@ -23,25 +29,20 @@
 ### `POST /api/user`
 Create a new user
 
-**Request Body:**
+**Request:**
 ```json
-{
-  "walletPublicKey": "string"
-}
+{ "walletPublicKey": "string" }
 ```
 
 **Response (201):**
 ```json
 {
   "success": true,
-  "data": {
-    "userId": "string",
-    "message": "User created successfully"
-  }
+  "data": { "userId": "string", "message": "User created successfully" }
 }
 ```
 
-**Error (400):**
+**Response (400):**
 ```json
 {
   "success": false,
@@ -52,9 +53,7 @@ Create a new user
 ---
 
 ### `GET /api/user/:publicKey`
-Get user details with profile and preferences
-
-**URL Params:** `publicKey` - Wallet public key
+Get user with profile and preferences
 
 **Response (200):**
 ```json
@@ -64,37 +63,36 @@ Get user details with profile and preferences
     "id": "string",
     "walletPubKey": "string",
     "isActive": true,
+    "isVerified": false,
+    "isPremium": false,
     "createdAt": "ISO8601",
     "updatedAt": "ISO8601",
+    "lastActiveAt": "ISO8601 | null",
     "profile": {
       "id": "string",
+      "userId": "string",
       "displayName": "string",
       "age": 25,
-      "bio": "string",
-      "gender": "MALE|FEMALE|NON_BINARY",
-      "orientation": "MEN|WOMEN|EVERYONE",
-      "heightCm": 175,
+      "gender": "MALE | FEMALE | NON_BINARY | OTHER",
+      "orientation": "string",
+      "bio": "string | null",
+      "profession": "string | null",
       "hobbies": ["string"],
-      "location": "string",
-      "profession": "string",
-      "religion": "string"
+      "religion": "string | null",
+      "country": "string | null",
+      "state": "string | null",
+      "city": "string | null",
+      "heightCm": 175
     },
     "preferences": {
       "id": "string",
-      "preferredGenders": ["MALE|FEMALE|NON_BINARY"],
+      "userId": "string",
+      "preferredGenders": ["MALE", "FEMALE"],
       "ageMin": 21,
       "ageMax": 30,
-      "maxDistanceKm": 50
+      "locationScope": "SAME_CITY | SAME_STATE | SAME_COUNTRY | ANY"
     }
   }
-}
-```
-
-**Error (404):**
-```json
-{
-  "success": false,
-  "error": "User not found"
 }
 ```
 
@@ -105,73 +103,63 @@ Get user details with profile and preferences
 ### `POST /api/user/profile`
 Create user profile
 
-**Request Body:**
+**Request:**
 ```json
 {
   "publicKey": "string",
   "name": "string",
-  "age": "number",
+  "age": 25,
   "bio": "string",
-  "gender": "MALE|FEMALE|NON_BINARY",
-  "orientation": "MEN|WOMEN|EVERYONE",
-  "heightCm": "number",
-  "hobbies": ["string"],
-  "location": "string",
-  "profession": "string",
-  "religion": "string"
+  "gender": "MALE | FEMALE | NON_BINARY | OTHER",
+  "orientation": "string",
+  "heightCm": 175,
+  "hobbies": ["Reading", "Travel"],
+  "country": "India",
+  "state": "Maharashtra",
+  "city": "Mumbai",
+  "profession": "Software Engineer",
+  "religion": "Hindu"
 }
 ```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `publicKey` | string | ✅ | User's wallet public key |
+| `name` | string | ✅ | Display name |
+| `age` | number | ✅ | Age (years) |
+| `gender` | Gender | ✅ | Gender enum value |
+| `orientation` | string | ✅ | Sexual orientation |
+| `bio` | string | ❌ | Profile bio |
+| `heightCm` | number | ❌ | Height in centimeters |
+| `hobbies` | string[] | ❌ | List of hobbies |
+| `country` | string | ❌ | Country (e.g., "India") |
+| `state` | string | ❌ | State (e.g., "Maharashtra") |
+| `city` | string | ❌ | City (e.g., "Mumbai") |
+| `profession` | string | ❌ | Job/profession |
+| `religion` | string | ❌ | Religion |
 
 **Response (201):**
 ```json
 {
   "success": true,
-  "data": {
-    "profileId": "string",
-    "message": "Profile created successfully"
-  }
+  "data": { "profileId": "string", "message": "Profile created successfully" }
 }
 ```
 
-**Error (400):**
-```json
-{
-  "success": false,
-  "error": "Profile already exists"
-}
-```
-
-**Error (404):**
-```json
-{
-  "success": false,
-  "error": "User not found"
-}
-```
+**Errors:** `400` Profile already exists or invalid location, `404` User not found
 
 ---
 
 ### `PUT /api/user/profile`
 Update user profile
 
-**Request Body:** Same as POST `/api/user/profile`
+**Request:** Same as POST
 
 **Response (200):**
 ```json
 {
   "success": true,
-  "data": {
-    "profileId": "string",
-    "message": "Profile updated successfully"
-  }
-}
-```
-
-**Error (404):**
-```json
-{
-  "success": false,
-  "error": "User not found"
+  "data": { "profileId": "string", "message": "Profile updated successfully" }
 }
 ```
 
@@ -180,53 +168,47 @@ Update user profile
 ## Preferences
 
 ### `POST /api/user/:publicKey/preferences`
-Set user matching preferences
+Set matching preferences
 
-**URL Params:** `publicKey` - Wallet public key
-
-**Request Body:**
+**Request:**
 ```json
 {
-  "preferredGenders": ["MALE|FEMALE|NON_BINARY"],
-  "ageMin": "number",
-  "ageMax": "number",
-  "distanceRange": "number"
+  "preferredGenders": ["MALE", "FEMALE"],
+  "ageMin": 21,
+  "ageMax": 30,
+  "locationScope": "SAME_STATE"
 }
 ```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `preferredGenders` | Gender[] | ❌ | Preferred gender(s) |
+| `ageMin` | number | ❌ | Minimum age preference |
+| `ageMax` | number | ❌ | Maximum age preference |
+| `locationScope` | LocationScope | ❌ | Location matching scope (default: SAME_STATE) |
+
+**locationScope values:**
+| Value | Description |
+|-------|-------------|
+| `SAME_CITY` | Only users in same city |
+| `SAME_STATE` | Users in same state (default) |
+| `SAME_COUNTRY` | Users anywhere in country |
+| `ANY` | No location filter |
 
 **Response (200):**
 ```json
 {
   "success": true,
-  "data": {
-    "preferencesId": "string",
-    "message": "User preferences set successfully"
-  }
+  "data": { "preferencesId": "string", "message": "User preferences set successfully" }
 }
 ```
 
-**Error (400):**
-```json
-{
-  "success": false,
-  "error": "Preferences already exist"
-}
-```
-
-**Error (404):**
-```json
-{
-  "success": false,
-  "error": "User not found"
-}
-```
+**Errors:** `400` Preferences already exist, `404` User not found
 
 ---
 
 ### `GET /api/user/:publicKey/preferences`
 Get user preferences
-
-**URL Params:** `publicKey` - Wallet public key
 
 **Response (200):**
 ```json
@@ -235,21 +217,11 @@ Get user preferences
   "data": {
     "id": "string",
     "userId": "string",
-    "preferredGenders": ["MALE|FEMALE|NON_BINARY"],
-    "ageMin": "number",
-    "ageMax": "number",
-    "maxDistanceKm": "number",
-    "createdAt": "ISO8601",
-    "updatedAt": "ISO8601"
+    "preferredGenders": ["MALE", "FEMALE"],
+    "ageMin": 21,
+    "ageMax": 30,
+    "locationScope": "SAME_STATE"
   }
-}
-```
-
-**Error (404):**
-```json
-{
-  "success": false,
-  "error": "User not found or preferences not found"
 }
 ```
 
@@ -260,8 +232,6 @@ Get user preferences
 ### `GET /api/user/:publicKey/prompts`
 Get all available prompts
 
-**URL Params:** `publicKey` - Wallet public key
-
 **Response (200):**
 ```json
 {
@@ -269,7 +239,10 @@ Get all available prompts
   "data": [
     {
       "id": "string",
-      "text": "string",
+      "question": "Two truths and a lie — go.",
+      "category": "FUN | LIFESTYLE | VALUES | ICEBREAKER",
+      "isActive": true,
+      "order": 1,
       "createdAt": "ISO8601"
     }
   ]
@@ -281,52 +254,36 @@ Get all available prompts
 ### `POST /api/user/:publicKey/prompts`
 Submit prompt answers
 
-**URL Params:** `publicKey` - Wallet public key
-
-**Request Body:**
+**Request:**
 ```json
 {
   "answers": [
-    {
-      "promptId": "string",
-      "answer": "string"
-    }
+    { "promptId": "string", "answer": "My answer text" }
   ]
 }
 ```
 
 **Response (200):**
 ```json
-{
-  "success": true,
-  "message": "Prompts answered successfully"
-}
+{ "success": true, "message": "Prompts answered successfully" }
 ```
 
-**Error (400):**
-```json
-{
-  "success": false,
-  "error": "Invalid publicKey or answers format"
-}
-```
-
-**Error (404):**
-```json
-{
-  "success": false,
-  "error": "User not found"
-}
-```
+**Errors:** `400` Invalid answers array, `404` User not found
 
 ---
 
-## Next Suggestion (Paid)
+## Suggestions
 
-### `GET /api/user/next-suggestion`
-Get next matching user - requires Solana x402 payment (USDC devnet).
+### `GET /api/user/:publicKey/next-suggestion`
+Get next matching user based on preferences
 
-**Headers:** `X-PAYMENT` - x402 payment header with payment receipt
+**Matching Logic:**
+1. Excludes self and already-swiped users
+2. Filters by `preferredGenders` if set
+3. Filters by `ageMin`/`ageMax` range if set
+4. Filters by location based on `locationScope`
+5. Orders by: premium users first, then most recently active
+6. Updates requester's `lastActiveAt`
 
 **Response (200):**
 ```json
@@ -335,24 +292,45 @@ Get next matching user - requires Solana x402 payment (USDC devnet).
   "data": {
     "id": "string",
     "walletPubKey": "string",
-    "preferences": {
-      "preferredGenders": ["MALE|FEMALE|NON_BINARY"],
-      "ageMin": "number",
-      "ageMax": "number",
-      "maxDistanceKm": "number"
-    }
-  },
-  "message": "Next suggestion fetched successfully"
+    "profile": {
+      "id": "string",
+      "displayName": "string",
+      "age": 25,
+      "gender": "FEMALE",
+      "orientation": "Heterosexual",
+      "bio": "string",
+      "profession": "string",
+      "hobbies": ["Reading"],
+      "religion": "string",
+      "country": "India",
+      "state": "Maharashtra",
+      "city": "Mumbai",
+      "heightCm": 165
+    },
+    "photos": [
+      { "id": "string", "url": "https://...", "order": 0 }
+    ],
+    "promptAnswers": [
+      {
+        "id": "string",
+        "answer": "My answer",
+        "prompt": { "id": "string", "question": "Two truths and a lie" }
+      }
+    ]
+  }
 }
 ```
 
-**Error (402):**
+**Response (200) - No more suggestions:**
 ```json
 {
-  "error": "Payment required to access this resource.",
-  "message": "Payment verification failed."
+  "success": true,
+  "data": null,
+  "message": "No more suggestions available"
 }
 ```
+
+**Errors:** `400` User not found or profile not created
 
 ---
 
@@ -361,100 +339,55 @@ Get next matching user - requires Solana x402 payment (USDC devnet).
 ### `POST /api/user/:publicKey/like`
 Like another user (creates match if mutual)
 
-**URL Params:** `publicKey` - Wallet public key of the user liking
-
-**Request Body:**
+**Request:**
 ```json
-{
-  "toWhom": "string"
-}
+{ "toWhom": "target_wallet_public_key" }
 ```
 
-**Response (201):**
+**Response (200) - Like created:**
 ```json
 {
   "success": true,
-  "data": {
-    "likeId": "string",
-    "message": "Like created successfully"
-  }
+  "message": "User liked successfully",
+  "isMatch": false,
+  "swipeId": "string"
 }
 ```
 
-**Response (201) - Match Created:**
+**Response (200) - Match!:**
 ```json
 {
   "success": true,
-  "data": {
-    "likeId": "string",
-    "matchId": "string",
-    "message": "It's a match!"
-  }
+  "message": "It's a match! 🎉",
+  "isMatch": true,
+  "swipeId": "string"
 }
 ```
 
-**Error (400):**
-```json
-{
-  "success": false,
-  "error": "Cannot like yourself" | "Missing toWhom in request body"
-}
-```
-
-**Error (404):**
-```json
-{
-  "success": false,
-  "error": "User not found"
-}
-```
-
-**Error (409):**
-```json
-{
-  "success": false,
-  "error": "Like already exists"
-}
-```
+**Errors:** `400` Missing toWhom or trying to like self, `404` User not found, `409` Already swiped
 
 ---
 
 ### `GET /api/user/:publicKey/likes`
-Get all likes received by the user
-
-**URL Params:** `publicKey` - Wallet public key
+Get all likes received (users who swiped LIKE on you)
 
 **Response (200):**
 ```json
 {
   "success": true,
-  "data": {
-    "count": "number",
-    "likes": [
-      {
+  "count": 5,
+  "data": [
+    {
+      "swipeId": "string",
+      "likedAt": "ISO8601",
+      "user": {
         "id": "string",
-        "fromUser": {
-          "id": "string",
-          "walletPubKey": "string",
-          "profile": {
-            "displayName": "string",
-            "age": "number",
-            "gender": "MALE|FEMALE|NON_BINARY",
-            "bio": "string"
-          }
-        },
-        "createdAt": "ISO8601"
+        "walletPubKey": "string",
+        "displayName": "string",
+        "profileImage": "https://... | null"
       }
-    ]
-  }
-}
-```
-
-**Error (404):**
-```json
-{
-  "success": false,
-  "error": "User not found"
+    }
+  ]
 }
 ```
 
@@ -463,52 +396,196 @@ Get all likes received by the user
 ## Matches
 
 ### `GET /api/user/:publicKey/matches`
-Get all mutual matches for the user
-
-**URL Params:** `publicKey` - Wallet public key
+Get all mutual matches
 
 **Response (200):**
 ```json
 {
   "success": true,
-  "data": {
-    "count": "number",
-    "matches": [
-      {
+  "count": 3,
+  "data": [
+    {
+      "matchId": "string",
+      "matchedAt": "ISO8601",
+      "user": {
         "id": "string",
-        "matchedUser": {
+        "walletPubKey": "string",
+        "displayName": "string",
+        "profileImage": "https://... | null",
+        "profile": {
           "id": "string",
-          "walletPubKey": "string",
-          "profile": {
-            "displayName": "string",
-            "age": "number",
-            "gender": "MALE|FEMALE|NON_BINARY",
-            "bio": "string"
-          }
-        },
-        "createdAt": "ISO8601"
+          "displayName": "string",
+          "age": 25,
+          "gender": "FEMALE",
+          "orientation": "string",
+          "bio": "string",
+          "profession": "string",
+          "hobbies": ["string"],
+          "religion": "string",
+          "country": "string",
+          "state": "string",
+          "city": "string",
+          "heightCm": 170
+        }
       }
-    ]
-  }
-}
-```
-
-**Error (404):**
-```json
-{
-  "success": false,
-  "error": "User not found"
+    }
+  ]
 }
 ```
 
 ---
 
+## TypeScript Types for Frontend
+
+```typescript
+// Enums
+type Gender = 'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER';
+type LocationScope = 'SAME_CITY' | 'SAME_STATE' | 'SAME_COUNTRY' | 'ANY';
+type PromptCategory = 'FUN' | 'LIFESTYLE' | 'VALUES' | 'ICEBREAKER';
+type SwipeAction = 'LIKE' | 'PASS';
+
+// Request Types
+interface CreateUserRequest {
+  walletPublicKey: string;
+}
+
+interface CreateProfileRequest {
+  publicKey: string;
+  name: string;
+  age: number;
+  gender: Gender;
+  orientation: string;
+  bio?: string;
+  heightCm?: number;
+  hobbies?: string[];
+  country?: string;
+  state?: string;
+  city?: string;
+  profession?: string;
+  religion?: string;
+}
+
+interface SetPreferencesRequest {
+  preferredGenders?: Gender[];
+  ageMin?: number;
+  ageMax?: number;
+  locationScope?: LocationScope;
+}
+
+interface AnswerPromptsRequest {
+  answers: Array<{
+    promptId: string;
+    answer: string;
+  }>;
+}
+
+interface LikeUserRequest {
+  toWhom: string;
+}
+
+// Response Types
+interface User {
+  id: string;
+  walletPubKey: string;
+  isActive: boolean;
+  isVerified: boolean;
+  isPremium: boolean;
+  createdAt: string;
+  updatedAt: string;
+  lastActiveAt: string | null;
+  profile: Profile | null;
+  preferences: Preferences | null;
+}
+
+interface Profile {
+  id: string;
+  userId: string;
+  displayName: string;
+  age: number;
+  gender: Gender;
+  orientation: string;
+  bio: string | null;
+  profession: string | null;
+  hobbies: string[];
+  religion: string | null;
+  country: string | null;
+  state: string | null;
+  city: string | null;
+  heightCm: number | null;
+}
+
+interface Preferences {
+  id: string;
+  userId: string;
+  preferredGenders: Gender[];
+  ageMin: number | null;
+  ageMax: number | null;
+  locationScope: LocationScope;
+}
+
+interface Photo {
+  id: string;
+  userId: string;
+  url: string;
+  order: number;
+}
+
+interface Prompt {
+  id: string;
+  question: string;
+  category: PromptCategory;
+  isActive: boolean;
+  order: number | null;
+  createdAt: string;
+}
+
+interface PromptAnswer {
+  id: string;
+  userId: string;
+  promptId: string;
+  answer: string;
+  createdAt: string;
+  prompt?: Prompt;
+}
+
+interface Suggestion {
+  id: string;
+  walletPubKey: string;
+  profile: Profile;
+  photos: Photo[];
+  promptAnswers: PromptAnswer[];
+}
+
+// API Response wrapper
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+  count?: number;
+}
+```
+
+---
+
+## Enums Reference
+
+| Field | Values |
+|-------|--------|
+| `gender` | `MALE`, `FEMALE`, `NON_BINARY`, `OTHER` |
+| `locationScope` | `SAME_CITY`, `SAME_STATE`, `SAME_COUNTRY`, `ANY` |
+| `promptCategory` | `FUN`, `LIFESTYLE`, `VALUES`, `ICEBREAKER` |
+| `swipeAction` | `LIKE`, `PASS` |
+
+---
+
 ## Status Codes
 
-- `200` - Success
-- `201` - Created
-- `400` - Bad Request
-- `402` - Payment Required
-- `404` - Not Found
-- `409` - Conflict (duplicate resource)
-- `500` - Server Error
+| Code | Meaning |
+|------|---------|
+| `200` | Success |
+| `201` | Created |
+| `400` | Bad Request / Validation Error |
+| `404` | Not Found |
+| `409` | Conflict (duplicate) |
+| `500` | Server Error |

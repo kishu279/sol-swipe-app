@@ -2,16 +2,18 @@ import { AppText } from '@/components/app-text';
 import { AppView } from '@/components/app-view';
 import { useUserDraft } from '@/components/state/user-details-provider';
 import { UiIconSymbol } from '@/components/ui/ui-icon-symbol';
+import { useSigningKey } from '@/hooks/use-signing-key';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import * as DocumentPicker from 'expo-document-picker';
 import { File } from 'expo-file-system';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ScrollView, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, TouchableOpacity, View } from 'react-native';
 
 export default function AccountScreen() {
   const { user, refreshUser } = useUserDraft()
   const router = useRouter()
+  const { hasKey, checkingKey } = useSigningKey()
 
   const cardBackground = useThemeColor({}, 'card')
   const iconBackground = useThemeColor({}, 'iconBackground')
@@ -19,6 +21,13 @@ export default function AccountScreen() {
   const textSecondary = useThemeColor({}, 'textSecondary')
   const backgroundSecondary = useThemeColor({}, 'backgroundSecondary')
   const cardBorder = useThemeColor({}, 'cardBorder')
+
+  // Auth guard - redirect to sign-in if not authenticated
+  React.useEffect(() => {
+    if (!checkingKey && !hasKey) {
+      router.replace('/sign-in')
+    }
+  }, [hasKey, checkingKey, router])
 
   React.useEffect(() => {
     if (user) {
@@ -30,6 +39,26 @@ export default function AccountScreen() {
     refreshUser()
   }, [])
 
+  const handlePickImage = React.useCallback(async () => {
+    try {
+
+      const result = await DocumentPicker.getDocumentAsync({ copyToCacheDirectory: true });
+      const file = new File(result.assets[0]!);
+      console.log(file.textSync());
+    } catch (error) {
+      console.log(error)
+    }
+  }, [])
+
+  // Show loading ONLY while checking auth
+  if (checkingKey) {
+    return (
+      <AppView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </AppView>
+    )
+  }
+
   if (!user) {
     return (
       <AppView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -38,17 +67,6 @@ export default function AccountScreen() {
       </AppView>
     )
   }
-
-  const handlePickImage = React.useCallback(async () => {
-    try  {
-
-      const result = await DocumentPicker.getDocumentAsync({ copyToCacheDirectory: true });
-      const file = new File(result.assets[0]);
-      console.log(file.textSync());
-    } catch(error) {
-      console.log(error)
-    }
-  }, [])
 
   return (
     <>
