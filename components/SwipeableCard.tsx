@@ -27,8 +27,8 @@ interface SwipeableCardProps {
 }
 
 export interface SwipeableCardRef {
-    swipeLeft: () => void;
-    swipeRight: () => void;
+  swipeLeft: () => void;
+  swipeRight: () => void;
 }
 
 export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(({ profile, onSwipeLeft, onSwipeRight, onSwipeUp, scale = 1 }, ref) => {
@@ -43,16 +43,16 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(({
 
   // Expose swipe methods to parent
   useImperativeHandle(ref, () => ({
-      swipeLeft: () => {
-          translateX.value = withTiming(-SCREEN_WIDTH * 1.5, { duration: 300 }, () => {
-              runOnJS(onSwipeLeft)();
-          });
-      },
-      swipeRight: () => {
-          translateX.value = withTiming(SCREEN_WIDTH * 1.5, { duration: 300 }, () => {
-              runOnJS(onSwipeRight)();
-          });
-      }
+    swipeLeft: () => {
+      translateX.value = withTiming(-SCREEN_WIDTH * 1.5, { duration: 300 }, () => {
+        runOnJS(onSwipeLeft)();
+      });
+    },
+    swipeRight: () => {
+      translateX.value = withTiming(SCREEN_WIDTH * 1.5, { duration: 300 }, () => {
+        runOnJS(onSwipeRight)();
+      });
+    }
   }));
 
   // Wrapper function to safely call onSwipeUp
@@ -71,7 +71,18 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(({
     .onEnd((event) => {
       // Threshold for Swipe Up - halfway up the screen
       const SWIPE_UP_THRESHOLD = SCREEN_HEIGHT * 0.25;
-      if (event.translationY < -SWIPE_UP_THRESHOLD) {
+      // Check horizontal swipe
+      if (event.translationX < - SWIPE_THRESHOLD) {
+        // Swipe RIGHT → LIKE
+        translateX.value = withTiming(- SCREEN_WIDTH * 1.5, {}, () => {
+          runOnJS(onSwipeLeft)();
+        });
+        // } else if (event.translationX < -SWIPE_THRESHOLD) {
+        //   // Swipe LEFT → NOPE
+        //   translateX.value = withTiming(-SCREEN_WIDTH * 1.5, {}, () => {
+        //     runOnJS(onSwipeLeft)();
+        //   });
+      } else if (event.translationY < -SWIPE_UP_THRESHOLD) {
         // Swipe Up Detected - fade out and navigate
         translateY.value = withTiming(-SCREEN_HEIGHT, { duration: 300 }, () => {
           runOnJS(handleSwipeUpCallback)();
@@ -79,9 +90,10 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(({
       } else {
         // Reset position
         translateY.value = withSpring(0);
+        translateX.value = withSpring(0);
       }
       // Always reset X just in case
-      translateX.value = withSpring(0);
+      // translateX.value = withSpring(0);
     });
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -105,19 +117,19 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(({
   // Stamp animations
   const likeOpacityStyle = useAnimatedStyle(() => ({
     opacity: interpolate(
-        translateX.value,
-        [0, SCREEN_WIDTH / 4],
-        [0, 1],
-        Extrapolation.CLAMP
+      translateX.value,
+      [0, SCREEN_WIDTH / 4],
+      [0, 1],
+      Extrapolation.CLAMP
     )
   }));
 
   const nopeOpacityStyle = useAnimatedStyle(() => ({
     opacity: interpolate(
-        translateX.value,
-        [-SCREEN_WIDTH / 4, 0],
-        [1, 0],
-        Extrapolation.CLAMP
+      translateX.value,
+      [-SCREEN_WIDTH / 4, 0],
+      [1, 0],
+      Extrapolation.CLAMP
     )
   }));
 
@@ -132,7 +144,7 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(({
             colors={['transparent', 'rgba(0,0,0,0.8)']}
             style={styles.gradient}
           />
-          
+
           {/* Text Overlay */}
           <View style={styles.overlay}>
             <Text style={[styles.name, { color: 'white' }]}>
@@ -145,50 +157,50 @@ export const SwipeableCard = forwardRef<SwipeableCardRef, SwipeableCardProps>(({
         </View>
 
         {/* Info Section */}
-       <View style={styles.infoSection}>
-           <View style={styles.tagsContainer}>
-                {profile.hobbies.slice(0, 3).map((hobby, i) => (
-                    <View key={i} style={[styles.tag, { borderColor: tintColor }]}>
-                        <Text style={{color: textColor, fontSize: 12}}>{hobby}</Text>
-                    </View>
-                ))}
-           </View>
+        <View style={styles.infoSection}>
+          <View style={styles.tagsContainer}>
+            {profile.hobbies.slice(0, 3).map((hobby, i) => (
+              <View key={i} style={[styles.tag, { borderColor: tintColor }]}>
+                <Text style={{ color: textColor, fontSize: 12 }}>{hobby}</Text>
+              </View>
+            ))}
+          </View>
 
-           {/* Show first question only to fit space */}
-           {(profile.questions || []).slice(0, 1).map((q, i) => (
-               <View key={i} style={styles.questionContainer}>
-                   <Text style={[styles.questionText, { color: tintColor }]}>{q.question}</Text>
-                   <Text style={[styles.answerText, { color: textColor }]}>{q.answer}</Text>
-               </View>
-           ))}
+          {/* Show first question only to fit space */}
+          {(profile.questions || []).slice(0, 1).map((q, i) => (
+            <View key={i} style={styles.questionContainer}>
+              <Text style={[styles.questionText, { color: tintColor }]}>{q.question}</Text>
+              <Text style={[styles.answerText, { color: textColor }]}>{q.answer}</Text>
+            </View>
+          ))}
 
-           {/* Preferences Section */}
-           <View style={styles.preferencesContainer}>
-               <Text style={[styles.prefTitle, { color: tintColor }]}>Looking For</Text>
-               <View style={styles.prefRow}>
-                   <Text style={[styles.prefText, { color: textColor }]}>
-                       {profile.preferences.preferredGenders.join(', ')}
-                   </Text>
-                   <Text style={[styles.prefText, { color: textColor }]}>•</Text>
-                   <Text style={[styles.prefText, { color: textColor }]}>
-                       {profile.preferences.ageMin}-{profile.preferences.ageMax} y/o
-                   </Text>
-                   <Text style={[styles.prefText, { color: textColor }]}>•</Text>
-                   <Text style={[styles.prefText, { color: textColor }]}>
-                       {profile.preferences.maxDistanceKm}km
-                   </Text>
-               </View>
-           </View>
-       </View>
+          {/* Preferences Section */}
+          <View style={styles.preferencesContainer}>
+            <Text style={[styles.prefTitle, { color: tintColor }]}>Looking For</Text>
+            <View style={styles.prefRow}>
+              <Text style={[styles.prefText, { color: textColor }]}>
+                {profile.preferences.preferredGenders.join(', ')}
+              </Text>
+              <Text style={[styles.prefText, { color: textColor }]}>•</Text>
+              <Text style={[styles.prefText, { color: textColor }]}>
+                {profile.preferences.ageMin}-{profile.preferences.ageMax} y/o
+              </Text>
+              <Text style={[styles.prefText, { color: textColor }]}>•</Text>
+              <Text style={[styles.prefText, { color: textColor }]}>
+                {profile.preferences.maxDistanceKm}km
+              </Text>
+            </View>
+          </View>
+        </View>
 
 
         {/* Like/Nope Stamps */}
         <Animated.View style={[styles.stamp, styles.likeStamp, likeOpacityStyle]}>
-            <Text style={styles.likeText}>LIKE</Text>
+          <Text style={styles.likeText}>LIKE</Text>
         </Animated.View>
 
         <Animated.View style={[styles.stamp, styles.nopeStamp, nopeOpacityStyle]}>
-            <Text style={styles.nopeText}>NOPE</Text>
+          <Text style={styles.nopeText}>NOPE</Text>
         </Animated.View>
 
       </Animated.View>
@@ -247,87 +259,87 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
   infoSection: {
-      flex: 0.45,
-      padding: 20,
-      justifyContent: 'flex-start',
+    flex: 0.45,
+    padding: 20,
+    justifyContent: 'flex-start',
   },
   tagsContainer: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: 8,
-      marginBottom: 16
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 16
   },
   tag: {
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 16,
-      borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
   },
   questionContainer: {
-      marginBottom: 12
+    marginBottom: 12
   },
   questionText: {
-      fontSize: 13,
-      fontWeight: '600',
-      marginBottom: 2,
-      opacity: 0.8
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 2,
+    opacity: 0.8
   },
   answerText: {
-      fontSize: 16,
-      fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '500',
   },
   preferencesContainer: {
-      marginTop: 'auto', // Push to bottom of info section
-      paddingTop: 10,
-      borderTopWidth: 1,
-      borderTopColor: 'rgba(0,0,0,0.05)'
+    marginTop: 'auto', // Push to bottom of info section
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)'
   },
   prefTitle: {
-      fontSize: 12,
-      fontWeight: '700',
-      marginBottom: 4,
-      opacity: 0.7,
-      textTransform: 'uppercase'
+    fontSize: 12,
+    fontWeight: '700',
+    marginBottom: 4,
+    opacity: 0.7,
+    textTransform: 'uppercase'
   },
   prefRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 6
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6
   },
   prefText: {
-      fontSize: 13,
-      fontWeight: '600'
+    fontSize: 13,
+    fontWeight: '600'
   },
-  
+
   // Stamps
   stamp: {
-      position: 'absolute',
-      top: 40,
-      borderWidth: 4,
-      borderRadius: 10,
-      padding: 8,
-      transform: [{rotate: '-15deg'}],
-      zIndex: 10
+    position: 'absolute',
+    top: 40,
+    borderWidth: 4,
+    borderRadius: 10,
+    padding: 8,
+    transform: [{ rotate: '-15deg' }],
+    zIndex: 10
   },
   likeStamp: {
-      left: 40,
-      borderColor: '#4CD964',
+    left: 40,
+    borderColor: '#4CD964',
   },
   nopeStamp: {
-      right: 40,
-      borderColor: '#FF3B30',
-      transform: [{rotate: '15deg'}]
+    right: 40,
+    borderColor: '#FF3B30',
+    transform: [{ rotate: '15deg' }]
   },
   likeText: {
-      color: '#4CD964',
-      fontSize: 32,
-      fontWeight: 'bold',
-      letterSpacing: 2
+    color: '#4CD964',
+    fontSize: 32,
+    fontWeight: 'bold',
+    letterSpacing: 2
   },
   nopeText: {
-      color: '#FF3B30',
-      fontSize: 32,
-      fontWeight: 'bold',
-      letterSpacing: 2
+    color: '#FF3B30',
+    fontSize: 32,
+    fontWeight: 'bold',
+    letterSpacing: 2
   }
 });

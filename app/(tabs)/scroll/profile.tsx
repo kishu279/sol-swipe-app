@@ -6,7 +6,7 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { ActivityIndicator, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 
@@ -70,6 +70,24 @@ export default function ProfileScreen() {
     }
   }
 
+  const sendReport = async () => {
+    console.log(profile.id)
+    console.log("Public Key", publicKey)
+
+    if (publicKey && profile.id) {
+
+      const result = await api.reportUser(publicKey.toString(), profile.id)
+
+      if (result.success) {
+        if (result.success) {
+          // Show match celebration! 🎉
+          console.log("User reported successfully");
+        } else {
+          console.log("User reported failed");
+        }
+      }
+    }
+  }
 
   // Interleave photos and prompts for a Hinge-style feed
   const allImages = [profile.profileImage, ...(profile.images || [])];
@@ -120,7 +138,20 @@ export default function ProfileScreen() {
                   <>
                     {/* Report Button - Relative to main photo */}
                     <TouchableOpacity
-                      onPress={() => console.log('Report pressed')}
+                      onPress={() => {
+                        console.log("report called")
+                        Alert.alert("Report", "Are you sure to send the report to that user", [
+                          {
+                            text: "Cancel",
+                            onPress: () => console.log("Cancel Pressed"),
+                            style: "cancel",
+                          },
+                          {
+                            text: "OK",
+                            onPress: () => sendReport(),
+                          },
+                        ])
+                      }}
                       style={styles.reportButton}
                     >
                       <Icon name="thumbs-up" size={22} color="#fff" />

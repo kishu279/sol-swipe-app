@@ -233,7 +233,7 @@ export const api = {
 
   /**
    * Like another user (creates match if mutual)
-   * POST /api/user/:publicKey/like
+   * POST /api/user/swipe/:publicKey/like
    */
   likeUser: async (
     publicKey: string,
@@ -245,7 +245,7 @@ export const api = {
     swipeId?: string
   }> => {
     try {
-      const response = await fetch(`${AppConfig.apiUrl}/user/${publicKey}/like`, {
+      const response = await fetch(`${AppConfig.apiUrl}/user/swipe/${publicKey}/like`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ toWhom }),
@@ -275,5 +275,50 @@ export const api = {
         isMatch: false,
       }
     }
+  },
+
+  /**
+   * Report/dislike a user (prevents them from appearing in suggestions)
+   * POST /api/user/swipe/:publicKey/report
+   */
+  reportUser: async (
+    publicKey: string,
+    toWhom: string,
+  ): Promise<{
+    success: boolean
+    message: string
+    swipeId?: string
+  }> => {
+    try {
+      const response = await fetch(`${AppConfig.apiUrl}/user/swipe/${publicKey}/report`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ toWhom }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        return {
+          success: true,
+          message: data.message || 'User reported successfully',
+          swipeId: data.swipeId,
+        }
+      }
+
+      return {
+        success: false,
+        message: data.error || 'Failed to report user',
+      }
+
+    } catch (error) {
+      console.error('Error Reporting user:', error)
+      return {
+        success: false,
+        message: 'Failed to report user',
+      }
+    }
+
+
   },
 }

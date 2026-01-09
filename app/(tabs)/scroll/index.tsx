@@ -4,12 +4,18 @@ import { MOCK_DATA, ScrollDataType } from '@/constants/scroll-data'
 import { useSigningKey } from '@/hooks/use-signing-key'
 import { useThemeColor } from '@/hooks/use-theme-color'
 import Icon from '@expo/vector-icons/Ionicons'
+import { BlurView } from 'expo-blur'
 import { useRouter } from 'expo-router'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import {
+  useSharedValue
+} from 'react-native-reanimated'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
+
+const END_POSITION = 200;
 
 export default function ScrollScreen() {
   const backgroundColor = useThemeColor({}, 'background')
@@ -20,6 +26,9 @@ export default function ScrollScreen() {
   const { hasKey, checkingKey } = useSigningKey()
   const { setCurrentProfile } = useScrollData()
   const [loading, setLoading] = useState(false)
+
+  const onLeft = useSharedValue(true);
+  const position = useSharedValue(0);
 
   // Auth guard - redirect to sign-in if not authenticated
   useEffect(() => {
@@ -96,7 +105,7 @@ export default function ScrollScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]} edges={['top']}>
       <View style={styles.header}>
-        <Text style={[styles.headerTitle, { color: textColor }]}>Discover</Text>
+        <Text style={[styles.headerTitle, { color: textColor }]}>Pairly</Text>
       </View>
 
       <View style={styles.cardsContainer}>
@@ -114,17 +123,21 @@ export default function ScrollScreen() {
       {/* Control Buttons */}
       <View style={styles.controlsContainer}>
         <TouchableOpacity
-          style={[styles.button, styles.nopeButton]}
+          style={styles.button}
           onPress={handleNopePress}
         >
-          <Icon name="close" size={32} color="#FF3B30" />
+          <BlurView intensity={20} tint="light" style={styles.blurContainer}>
+            <Icon name="close" size={32} color="#FF3B30" />
+          </BlurView>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.button, styles.nextButton]}
+          style={styles.button}
           onPress={handleNopePress}
         >
-          <Icon name="arrow-forward" size={32} color="#007AFF" />
+          <BlurView intensity={20} tint="light" style={styles.blurContainer}>
+            <Icon name="arrow-forward" size={32} color="#007AFF" />
+          </BlurView>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -154,28 +167,27 @@ const styles = StyleSheet.create({
   },
   controlsContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 60,
     marginBottom: 30,
-    gap: 40
   },
   button: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 5,
-    backgroundColor: 'white'
   },
-  nopeButton: {
-    // styles handled by icon color
-  },
-  nextButton: {
-    // styles handled by icon color
+  blurContainer: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   }
 })
 
